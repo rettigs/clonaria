@@ -1,0 +1,101 @@
+---
+type: default
+# Depth is only a default value and can be modified when placing certain blocks. It can be:
+# 0: background (where it is behind entities)
+# 1: midground (where it is next to entities)
+# 2: foreground (where it is in front of entities)
+# 3: actuators (in front of foreground, hidden unless in mech mode)
+# 4: wire (in front of foreground and actuators, hidden unless in mech mode)
+depth: 1
+
+# Determines whether the block collides with entities (if at depth 0).
+solid: true
+
+# Whether this is a "normal" block. Normal blocks can be used as background and foreground in addition to middleground (if depth is 0). Normal blocks include dirt, stone, wood, etc. Non-normal blocks include torches, doors, chests, etc.
+normal: true
+
+# Attachment values are masks that indicate in which directions this block can attach to other blocks or have blocks attached to it. A block can only be placed if both its "icanattachto" mask and the "theycanattachto" mask of at least one adjacent block are compatible (e.g. the bottom block can attach on the top, and the top block is attachable on the bottom). Whenever an adjacent block is broken, the mask pairs will be recalculated. If the block is able to attach somewhere else, nothing happens to it. If the block cannot attach anywhere else, it will either stay or break, depending on the value of "breakondetach". Attachment only applies on and between background, midground, and foreground depths. Add the values to get the mask, or use a special value of -1 or 0:
+#  0: can't attach/be attached to anywhere
+#  1: front
+#  2: back
+#  4: top
+#  8: right
+# 16: bottom
+# 32: left
+# For example, a torch may have a icanattachto mask of 1+8+16+32=57 because it can attach to the front, sides, and tops of other blocks.  A wood block may have a theycanattachto mask of 1+2+4+8+16+32=63 because you can attach blocks to any part of it.  A cloud block may have an icanattachto mask of 63 and a theycanattachto mask of 0 if it can be placed anywhere, but can't have anything attached to it.
+icanattachto: 63
+theycanattachto: 63
+
+# Whether the block breaks when it is no longer attached to anything.
+breakondetach: false
+
+# Whether the block is affected by gravity. Blocks affected by gravity will fall if there is no block beneath them.
+gravity: false
+
+# The width of this block, in blocks.
+width: 1
+
+# The height of this block, in blocks.
+height: 1
+
+# The strength of this block in milliseconds it takes to break it with a tool of equal strength. A block strength of 500 means it will break after 500 milliseconds of using a tool of strength 500, and it cannot be broken by a tool with a strength of less than 500. A tool of strength 1000 will be able to break it twice as quickly as a tool of strength 500, or in this example, in just 250 milliseconds. A value of -1 means the block is unbreakable (perhaps useful for full chests?).
+strength: 100
+
+# Whether the block can be blown up. If true, explodability is determined by strength (e.g. explosions of strength 50 will not break a block of strength 100).
+explodable: true
+
+# Whether the block can burn. If true, flammability is determined by strength (i.e. blocks of higher strength will take longer to burn, e.g. a block of strength 100 may take 100*50 = 5000ms = 5 seconds to burn).
+flammable: false
+
+# How much light this block should emit, in units of block range. For example, a light of "5" means its light will reach 5 blocks out, with intensity decreasing with distance. The higher the value, the higher the brightness at the center.  A value of "0" indicates that no light is emittied. Brightness maxes out at 15, but range can extend past that.
+light: 0
+
+# The entity this block drops by default when broken.  Defaults to "<blockname>", or drops nothing if no entity with that name is found.
+drop: 
+
+# The model to base this block off of.  If this block does not have a particular attribute set, it will use the attribute that its default model has.  This works recursively.
+defaultmodeltype: default
+---
+type: air
+solid: false
+theycanattachto: 0
+strength: -1
+explodable: false
+---
+type: stone
+---
+type: dirt
+---
+type: grass
+---
+type: sand
+gravity: true
+---
+type: gravel
+gravity: true
+---
+type: log
+flammable: true
+---
+type: wood
+flammable: true
+---
+type: torch
+solid: false
+normal: false
+icanattachto: 57
+theycanattachto: 0
+light: 10
+---
+type: workbench
+normal: false
+icanattachto: 16
+theycanattachto: 4
+width: 2
+---
+type: furnace
+normal: false
+icanattachto: 16
+theycanattachto: 0
+width: 3
+height: 2

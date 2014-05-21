@@ -1,0 +1,42 @@
+---
+type: "default"
+# The hitbox of this entity in form of a list of points of the polygon (which is further represented as a list of x coordinates and a list of y coordinates; order matters!). Coordinates are in pixels, and (0, 0) refers to the upper left corner of the texture.  The hitbox will be scaled with the texture as needed, so make the hitbox match the texture.
+hitbox:
+    xpoints: [0, 15, 15, 0]
+    ypoints: [0, 0, 15, 15]
+    npoints: 4
+
+# Indicates the physics model of this entity. It can be:
+#
+# 				Collision Action	Gravity		Air Resistance	Examples
+# 				--------------------------------------------------------
+# SOLID 		Stop				Yes				Yes			Players, dropped items, zombies
+# LIQUID		Stop/turn around	Yes				No			Water, lava, honey, quicksand, wet concrete
+# BOUNCY		Turn around			Yes				No			Fireballs
+# REFLECTIVE	Turn around			No				No			Demon eyes, ricocheted bullets, energy beams
+# FLOATING		N/A	(no collision)	No				No			Flying/digging enemies such as worms, wyverns, etc.
+# PHASING		N/A	(no collision)	In air only		No			Wraiths (they can fly through blocks, but not through the air)
+physicsmodel: SOLID
+
+# Indicates the AI model of this entity. It can be:
+#    			Movement Pattern											Examples
+#				--------------------------------------------------------------------
+# NONE,			N/A															Players, items, projectiles, liquids
+# WALK,			Walk/jump toward target until within attack range			Zombies, skeletons, crabs
+# HOP,			Hop toward target until within attack range					Slimes, bunnies
+# FLY,			Fly/swim toward target until within attack range			Demon eyes, wraiths, birds, fish
+# HOVER,		Hover near target, switch to FLY if out of range			Corruptors
+# TELEPORT		Teleport to near target, switch to WALK if out of range		Dark casters, fire imps, chaos elementals (non-walking entities simply have infinite attack range)
+aimodel: NONE
+
+# How much light this entity should emit, in units of block range. For example, a light of "5" means its light will reach 5 blocks out, with intensity decreasing with distance. The higher the value, the higher the brightness at the center.  A value of "0" indicates that no light is emittied. Brightness maxes out at 15, but range can extend past that.
+light: 0
+
+# The model to base this entity off of.  If this entity does not have a particular attribute set, it will use the attribute that its default model has.  This works recursively.
+defaultmodeltype: default
+---
+type: player
+hitbox:
+    xpoints: [0, 15, 15, 0]
+    ypoints: [0, 0, 31, 31]
+    npoints: 4

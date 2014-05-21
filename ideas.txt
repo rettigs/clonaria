@@ -1,0 +1,58 @@
+- Clonaria is like Terraria, but with a few changes.
+- Block size is slightly larger such that the character only requires a 1x2 space rather than a 2x3 space, which makes it less annoying to mine.
+	- Possibility of half or quarter blocks to allow for more intricate designs.
+	- Alternatively, have small (or same size as Terraria) blocks, but allow placing and breaking 2-4 at a time somehow.
+- Major changes to the crafting system.
+	- Tools and weapons can be crafted together in almost infinite ways.  Weapons are a type of tool.
+	- Rather than having predefined recipes, tools and items can be combined arbitrarily on a large grid, with spaces for each pixel of the tool.
+	- Materials can be applied on top of other materials.
+	- "Base" tools are acquired by playing the game.
+		- The player starts out with a small set of base tools, such as a pick, an axe, and a sword (like in Terraria).
+		- Other base tools that can found can include bows, boomerangs, flails, spears, etc., as well as upgraded versions of the main tools types.
+			- Players can start with wooden base tools, then once they acquire them, upgrade to stone, copper, bronze, iron, steel, silver, gold, etc.
+			- The different base items each have base stats, such as "5 damage" or something.
+			- Some base items can have special effects, like lighting up, swinging automatically, lighting enemies on fire, etc.
+				- These types of abilities can also be added through augments.
+	- The base tools can be augmented with other items to increase it stats, such as size, speed, damage, etc.
+	- Tools can be "uncrafted" for a cost to return the tool and it augments.
+	- For example, say you have a base wooden sword that has 1 damage, 4 length, and 1 weight, and you want it to have at least 20 length and 25 damage.
+		- Suppose iron has 2 damage and 2 weight.
+		- You can add 16 pieces of iron to make it 20 length, 33 damage, and 33 weight.
+		- However, adding weight makes the weapon swing slower, so you also want the weight to be no more than 25.
+		- Suppose aluminum has 1 damage and 1 weight.  You could instead add 8 aluminum and 8 iron to make it 20 length, 25 damage, and only 25 weight.
+	- You can also add special augment to tools.  For example:
+		- Suppose you want your sword to light up.
+			- You can find a magic gem to produce the light, but it uses your mana.
+			- You can use a light bulb, but it requires a battery.
+			- You can find demonite or something else that glows and add that to the sword.
+		- Suppose you want to make your sword light things on fire.
+			- You can find a magic gem to produce the fire, but it uses your mana.
+			- You can add a lighter to the end, but it requires fuel (gel?)
+			- You can make it hollow and fill it with lava, but then it will be heavy (and also exceedingly badass).
+	- You can combine tools together to make one that serves the function of each.
+		- This may require a special item so that it isn't overused.  Possible item name: "__________ glue"
+		- This conserves inventory space and reduces the need for tool switching.
+		- Their stats will be added, including their weight, so it may make them slower.
+		- Augments added to the combined tool will be applied to both functions of the tool.
+		- Examples:
+			- You can combine a hammer and an axe into a hamaxe.
+			- You can combine a hammer, a drill, and an axe into a hamdrax.
+		- You can even combine tools that are used differently.
+			- When crafting them, you are given the option of which actions will be bound to which button.  For example, "swing" can be left click, "throw" can be right click, and "shoot" can be middle click.
+			- Examples:
+				- Sword + Spear = Can be swung or thrust forward.
+				- Sword + Bow = Can be swung or shot.
+				- Sword + Boomerang = Can be swung or thrown.
+				- Boomerang + Flail = Can be thrown, then have flail activated in midair to affect a large area.
+				- Boomerang + Gun = Can be thrown, then have gun activated in midair to affect a large area.
+				- Boomerang + Flail + Gun + Flamethrower = Can be thrown, then have the flail, gun, and flamethrower activated in midair to affect a large area.
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			

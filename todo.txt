@@ -1,0 +1,33 @@
+- [Long term] separate client and server
+- separate drawing and calculation into different threads
+	- allow for variable FPS/ticks
+	- make init its own thread that watches to see if the others are still running, and fix screen if not (rather than putting the whole thing in a try/finally block)
+- make liquid a non-entity so that it can follow a grid instead of floating point values?  This should improve liquid performance, but make it look worse if the "drops" are larger than one pixel (or if they are one pixel, but antialiased).
+	- Use "mesh" for liquids?  Research required.
+- [Long term] Eventually change collision code to collide not on the entity's hitbox, but on the entity's hitbox's *path* (i.e. the polygon representing the union of all locations the entity at one point logically had to occupy within the past tick of movement).  I'm not sure how to calculate this, especially if their path is curved.  I'm sure it will need to be approximated somehow.  A straight line is probably fine for this.  This should prevent small and/or fast entities from traveling through thin walls.
+- read http://gameprogrammingpatterns.com/
+- find a way to set explicit limits on things like velocity, jump height, etc. rather than applying arbitrary air resistance or gravity values until they happen to cancel entity acceleration.  There still need to be smooth arrivals at those limits though.
+	- To control velocity, give entities a mass and an "air resistance factor", and calculate acceleration due to air resistance with a square relationship.  Have a setMaxVel method that simply adjusts the air resistance factor to make it true.
+	- Perhaps this should be split into x and y since otherwise increasing jump height or max velocity would affect the other one.  Otherwise, the following might happen:
+		- Player gets speedy boots.  To reach a higher max velocity, air resistance factor (aerodynamicism?) is lowered.  They now jump higher and fall faster.
+	- To control jumps, have a setJumpHeight method that tweaks jump acceleration.
+- make entities stop after their velocity gets below a certain value? (currently they keep moving for many seconds even while appearing stopped; they are just moving really slowly)
+- Implement items that change game mechanics (like adding double jumps, changing acceleration, etc.) in a way that avoids lots of if statements.  For example:
+	- Don't put in the move method "if has normal boots, then move 5; if has super boots, then move 10; if has ultra boots, then move 15;" or things like that.
+	- Instead, when a player equips an item, it changes a constant for them (e.g. equipping super boots does "player.speed += 5") and undoes that change when it is unequipped.
+	- This way, you are always running the method in the same way, and adding new items doesn't require changing the move method.  Much cleaner than a huge switch statement or list of ifs.
+- Double buffer all AI/entire world?  This will require lots of resources and/or refactoring, so only do it if I encounter or think of major problems.
+- Multithread entity AI/liquids?  This should be easier to do if we double buffer them, and may be important if they're intensive and/or numerous.
+- Use command classes to make AI simpler (they move the same way a player does, just with artificially generated commands instead of keyboard-generated ones): http://gameprogrammingpatterns.com/command.html
+- To hold player inventory, use HashMap<String, Item>, where the key is a string such as "i47", "d1", "v3", or "a6", which refer to the 47th inventory item, the 1st dye item, the 3rd vanity item, and the 6th accessory item, respectively.
+	- Why not have an inventory object?
+- [Long term] If I need to cut down RAM usage on the world storage, I could fill the world array with 2-byte shorts instead of 8-byte pointers and then map the shorts to the pointers transparently, resulting in a memory usage of about ~41MB down from ~161MB for a 8400x2400 block world.  This will probably need to be done for storing worlds permanently anyway, since we obviously can't save the pointers.
+- use opengl
+
+Current Tasks:
+- Player collision detection so we don't fall through blocks
+	- If a collision would happen, modify entity velocity/position so it hits flush, then stop afterward.
+- Breaking/placing blocks
+- Persistent world
+- Quatrie for sparse world layer implementation
+- Better world generation
