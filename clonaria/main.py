@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import pyglet, sys, time
+from pyglet.window import key
 
 from entity import Entity
 from model import Model
@@ -18,11 +19,27 @@ if __name__ == '__main__':
     Util.get().world = world = World("world1", (1000, 1000))
     world.generate()
 
-    Util.get().player = player = Entity("player", world.name, (world.width / 2, world.height / 2 + 1))
+    Util.get().player = player = Entity('player', world.name, (world.width / 2, world.height / 2 + 1))
+
+    keys = key.KeyStateHandler()
+    window.push_handlers(keys)
+
+    fps_display = pyglet.clock.ClockDisplay()
 
     @window.event
     def on_draw():
         window.clear()
         world.draw()
+        player.draw()
+        fps_display.draw()
 
+    def update(self):
+        if keys[key.LEFT] or keys[key.A]:
+            player.left()
+        if keys[key.RIGHT] or keys[key.D]:
+            player.right()
+
+        player.move()
+
+    pyglet.clock.schedule_interval(update, 1/60.)
     pyglet.app.run()
