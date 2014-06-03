@@ -1,3 +1,4 @@
+import pyglet
 from const import Const
 from util import Util
 
@@ -43,8 +44,12 @@ class WorldLayer(object):
     def draw(self):
         window = Util.get().window
         player = Util.get().player
-        blocksOutHor = window.width / 2 / Const.PPB
-        blocksOutVert = window.height / 2 / Const.PPB
-        for y in xrange(player.y - blocksOutVert, player.y + blocksOutVert):
-            for x in xrange(player.x - blocksOutHor, player.x + blocksOutHor):
-                self.blockModels[x][y].get('texture').blit(*Util.get().blocksToPixels((x, y)))
+        blocksOutHor = window.width / 2 / Const.PPB - 1
+        blocksOutVert = window.height / 2 / Const.PPB - 1
+        batch = pyglet.graphics.Batch()
+        sprites = []
+        for y in xrange(int(player.y - blocksOutVert), int(player.y + blocksOutVert)):
+            for x in xrange(int(player.x - blocksOutHor), int(player.x + blocksOutHor)):
+                sx, sy = Util.get().blocksToPixels((x, y))
+                sprites.append(pyglet.sprite.Sprite(self.blockModels[x][y].get('texture'), x=sx, y=sy, batch=batch))
+        batch.draw()
