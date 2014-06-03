@@ -24,7 +24,10 @@
 - [Long term] If I need to cut down RAM usage on the world storage, I could fill the world array with 2-byte shorts instead of 8-byte pointers and then map the shorts to the pointers transparently, resulting in a memory usage of about ~41MB down from ~161MB for a 8400x2400 block world.  This will probably need to be done for storing worlds permanently anyway, since we obviously can't save the pointers.
 - Implement collision by comparing the velocity to the distance from the next closest block.  Travel the min of the two.
 - Remove air resistance and use friction values on blocks instead, allowing easy implementation of ice blocks and such as well as faster flying.
-
-Current Tasks:
 - Quatrie for sparse world layer implementation
 - Better world generation
+- make models extend sprites?
+- keep all [nearby?] sprites around instead of recreating them every tick
+- make textures 8x8 and scale them as sprites to 16x16?
+
+Current Tasks:
