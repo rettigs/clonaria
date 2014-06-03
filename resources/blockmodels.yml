@@ -41,6 +41,9 @@ height: 1
 # The strength of this block in milliseconds it takes to break it with a tool of equal strength. A block strength of 500 means it will break after 500 milliseconds of using a tool of strength 500, and it cannot be broken by a tool with a strength of less than 500. A tool of strength 1000 will be able to break it twice as quickly as a tool of strength 500, or in this example, in just 250 milliseconds. A value of -1 means the block is unbreakable (perhaps useful for full chests?).
 strength: 100
 
+# The deceleration an entity traveling on this block will experience, in blocks/second^2.
+friction: 20
+
 # Whether the block can be blown up. If true, explodability is determined by strength (e.g. explosions of strength 50 will not break a block of strength 100).
 explodable: true
 

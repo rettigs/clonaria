@@ -46,13 +46,17 @@
 				- Boomerang + Flail = Can be thrown, then have flail activated in midair to affect a large area.
 				- Boomerang + Gun = Can be thrown, then have gun activated in midair to affect a large area.
 				- Boomerang + Flail + Gun + Flamethrower = Can be thrown, then have the flail, gun, and flamethrower activated in midair to affect a large area.
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
+- Particular tool/weapons and types:
+    - Lighting gun: shoots randomly branching bolts
+    - Radiation swings: a tool augment that causes an arc of energy to emanate from a swung tool
+- Dynamic biomes, including:
+    - forest
+    - desert
+    - snow
+    - jungle
+    - ocean (much bigger than in terraria)
+    - floating island (much bigger than in terraria)
+    - corruption (in a technological sense, i.e. "glitchy")
+- Every biome starts with its own dungeon.  Dungeons may be accessed in any order.  Monsters are scaled to player ability (how?).  Each dungeon contains its own boss as well as a basic tool/weapon type that is relevant and/or useful for that dungeon (like in Zelda).  It is very weak to start out with (so that if it's the player's first dungeon, they don't get an overpowered item), but can be upgraded later in the game.  Perhaps the bosses can drop "power cores" or something that allow for tool upgrades.
+    - Corruption Tool: Antenna: on use, generates a wide but short-range beam of static that temporarily causes blocks to fade away, allowing travel through them.  Care must be used not to run out of mana while tunneling and start suffocating inside the blocks.
+    - Floating Island Tool: on use, generates a temporary cloud at the target location that can be walked on.  Care must be used to not run out of mana and fall out of the sky.

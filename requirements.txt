@@ -1,6 +1,4 @@
 PyYAML==3.11
 argparse==1.2.1
-cocos2d==0.6.0
-pyglet==1.2alpha1
-six==1.6.1
+pyglet==1.1.4
 wsgiref==0.1.2

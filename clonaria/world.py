@@ -1,3 +1,4 @@
+from const import Const
 from util import Util
 
 class World(object):
@@ -22,6 +23,10 @@ class World(object):
             for x in xrange(w):
                 self.setBlockAt(x, y, 1, "dirt")
 
+    def draw(self):
+        for layer in self.layers:
+            layer.draw()
+
 class WorldLayer(object):
 
     def __init__(self, size):
@@ -34,3 +39,12 @@ class WorldLayer(object):
     def setBlockAt(self, x, y, blockType):
         self.blockModels[x][y] = Util.get().blockModels[blockType]
         return True
+
+    def draw(self):
+        window = Util.get().window
+        player = Util.get().player
+        blocksOutHor = window.width / 2 / Const.PPB
+        blocksOutVert = window.height / 2 / Const.PPB
+        for y in xrange(player.y - blocksOutVert, player.y + blocksOutVert):
+            for x in xrange(player.x - blocksOutHor, player.x + blocksOutHor):
+                self.blockModels[x][y].get('texture').blit(*Util.get().blocksToPixels((x, y)))
