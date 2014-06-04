@@ -4,7 +4,7 @@ from util import Util
 class Entity(object):
 
     def __init__(self, entityModel, world, location):
-        self.entityModel = Util.get().entityModels[entityModel]
+        self.entityModel = entityModel
         self.world = world
         self.location = self.x, self.y = location
         self.velocity = self.vx, self.vy = 0, 0

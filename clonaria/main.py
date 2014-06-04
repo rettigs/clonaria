@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import pyglet, sys, time
+import getopt, pyglet, sys, time
 from pyglet.window import key
 
 from entity import Entity
@@ -9,29 +9,48 @@ from util import Util
 from world import World
 
 if __name__ == '__main__':
-    Util.get().window = window = pyglet.window.Window()
-#    label = pyglet.text.Label('Hello, world',
-#                              font_name='Times New Roman',
-#                              font_size=36,
-#                              x=window.width//2, y=window.height//2,
-#                              anchor_x='center', anchor_y='center')
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "d")
+    except getopt.GetoptError as err:
+        print str(err)
+        sys.exit(2)
 
-    Util.get().world = world = World("world1", (1000, 1000))
+    for o, a in opts:
+        if o == "-d":
+            Util.get().debug += 1
+
+    Util.get().window = window = pyglet.window.Window(resizable=True)
+
+    Util.get().world = world = World("world1", (400, 400))
     world.generate()
 
-    Util.get().player = player = Entity('player', world.name, (world.width / 2, world.height / 2 + 1))
+    Util.get().player = player = Entity(Util.get().entityModels['player'], world.name, (world.width / 2, world.height / 2 + 1))
 
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
 
     fps_display = pyglet.clock.ClockDisplay()
 
+    batch = Util.get().batch
+
+    if Util.get().debug:
+        debugStats = [  '"player.x: {}".format(self.player.x)',
+                        '"player.y: {}".format(self.player.y)',
+                        '"player.vx: {}".format(self.player.vx)',
+                        '"player.vy: {}".format(self.player.vy)']
+        Util.get().addDebugStats(debugStats)
+
     @window.event
     def on_draw():
         window.clear()
         world.draw()
+
+        if Util.get().debug:
+            batch.draw()
+            fps_display.draw()
+            Util.get().updateDebugStats()
+
         player.draw()
-        fps_display.draw()
 
     def update(self):
         if keys[key.LEFT] or keys[key.A]:
