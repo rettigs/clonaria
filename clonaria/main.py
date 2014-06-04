@@ -29,12 +29,13 @@ if __name__ == '__main__':
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
 
-    fps_display = pyglet.clock.ClockDisplay()
+    pyglet.gl.glClearColor(0, 40, 200, 0)
 
     batch = Util.get().batch
 
     if Util.get().debug:
-        debugStats = [  '"player.x: {}".format(self.player.x)',
+        debugStats = [  '"FPS: {}".format(pyglet.clock.get_fps())',
+                        '"player.x: {}".format(self.player.x)',
                         '"player.y: {}".format(self.player.y)',
                         '"player.vx: {}".format(self.player.vx)',
                         '"player.vy: {}".format(self.player.vy)']
@@ -47,7 +48,6 @@ if __name__ == '__main__':
 
         if Util.get().debug:
             batch.draw()
-            fps_display.draw()
             Util.get().updateDebugStats()
 
         player.draw()

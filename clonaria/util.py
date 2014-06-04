@@ -54,7 +54,7 @@ class Util(object):
         '''Adds new debug stats to the HUD'''
         for text in texts:
             number = len(self.debugStats)
-            label = pyglet.text.Label(text, font_size=14, batch=self.batch)
+            label = pyglet.text.Label(text, font_size=14, color=(228, 228, 0, 255), batch=self.batch)
             self.debugStats.append((number, label, text))
 
     def updateDebugStats(self):
