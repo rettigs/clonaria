@@ -15,8 +15,9 @@ class Util(object):
         self.group = {}
         for x in xrange(Const.NUM_LAYERS):
             self.group['layer{}'.format(x-1)] = pyglet.graphics.OrderedGroup(x-1)
-        self.group['player'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS)
-        self.group['debug'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS+1)
+        self.group['entity'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS)
+        self.group['player'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS+1)
+        self.group['debug'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS+2)
 
     @staticmethod
     def loadModels(path, modeltype):

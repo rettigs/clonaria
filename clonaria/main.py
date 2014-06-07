@@ -6,6 +6,7 @@ from pyglet.window import key
 from const import Const
 from entity import Entity
 from model import Model
+from player import Player
 from util import Util
 from world import World
 
@@ -25,7 +26,7 @@ if __name__ == '__main__':
     Util.get().world = world = World("world1", (400, 400))
     world.generate()
 
-    Util.get().player = player = Entity(Util.get().entityModels['player'], world.name, (world.width / 2, world.height / 2 + 1))
+    Util.get().player = player = Player(Util.get().entityModels['player'], world.name, (world.width / 2, world.height / 2 + 1))
 
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
