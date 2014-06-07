@@ -67,10 +67,10 @@ class World(object):
                 if not self.isEmptyAt(block[0], block[1], 1):
                     self.setBlockAt(block[0], block[1], 1, gravel)
 
-    def draw(self):
+    def prepareDraw(self):
         #for layer in self.layers:
-            #layer.draw()
-        self.layers[1].draw() # TODO: We are currently only using layer 1
+            #layer.prepareDraw()
+        self.layers[1].prepareDraw() # TODO: We are currently only using layer 1
 
 class WorldLayer(object):
 
@@ -79,6 +79,7 @@ class WorldLayer(object):
         self.layer = layer
         self.size = self.width, self.height = size
         self.blocks = [[None for x in xrange(self.width)] for y in xrange(self.height)]
+        self.blockSprites = {}
     def isValidCoords(self, x, y):
         return x >= 0 and y >= 0 and x < self.width and y < self.height
 
@@ -96,14 +97,13 @@ class WorldLayer(object):
     def isSolidAt(self, x, y):
         return self.getBlockAt(x, y).get('solid')
 
-    def draw(self):
+    def prepareDraw(self):
         pass
         window = Util.get().window
         player = Util.get().player
-        blocksOutHor = window.width / 2 / Const.PPB + 1
-        blocksOutVert = window.height / 2 / Const.PPB + 1
+        blocksOutHor = window.width / 2. / Const.ZOOM / Const.PPB + 1
+        blocksOutVert = window.height / 2. / Const.ZOOM / Const.PPB + 1
         batch = Util.get().batch
-        blockSprites = Util.get().blockSprites
 
         for y in xrange(int(player.y - blocksOutVert), int(player.y + blocksOutVert)):
             for x in xrange(int(player.x - blocksOutHor), int(player.x + blocksOutHor)):
@@ -112,13 +112,17 @@ class WorldLayer(object):
                         block = self.blocks[x][y]
                         if block.get('type') != 'air':
                             sx, sy = Util.get().blocksToPixels((x, y))
-                            if (x, y) in blockSprites:
-                                blockSprites[x, y].position = sx, sy
+                            if (x, y) in self.blockSprites:
+                                oldSprite = self.blockSprites[x, y]
+                                oldSprite.position = sx, sy
+                                oldSprite.scale = Const.ZOOM
                             else:
-                                blockSprites[x, y] = pyglet.sprite.Sprite(self.blocks[x][y].get('texture'), x=sx, y=sy, batch=batch)
-                    except:
+                                newSprite = pyglet.sprite.Sprite(self.blocks[x][y].get('texture'), x=sx, y=sy, batch=batch, group=Util.get().group['layer0'])
+                                newSprite.scale = Const.ZOOM
+                                self.blockSprites[x, y] = newSprite
+                    except: # Don't crash if we get to the edge of the world, just don't render anything there
                         pass
 
-        for pos in blockSprites.keys():
+        for pos in self.blockSprites.keys():
             if not Util.get().isBlockOnScreen(pos):
-                del blockSprites[pos]
+                del self.blockSprites[pos]

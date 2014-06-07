@@ -12,7 +12,11 @@ class Util(object):
         self.entityModels = self.loadModels("../resources", "entity")
         self.batch = pyglet.graphics.Batch()
         self.debugStats = []
-        self.blockSprites = {}
+        self.group = {}
+        for x in xrange(Const.NUM_LAYERS):
+            self.group['layer{}'.format(x-1)] = pyglet.graphics.OrderedGroup(x-1)
+        self.group['player'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS)
+        self.group['debug'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS+1)
 
     @staticmethod
     def loadModels(path, modeltype):
@@ -54,7 +58,7 @@ class Util(object):
         '''Adds new debug stats to the HUD'''
         for text in texts:
             number = len(self.debugStats)
-            label = pyglet.text.Label(text, font_size=14, color=(228, 228, 0, 255), batch=self.batch)
+            label = pyglet.text.Label(text, font_size=14, color=(228, 228, 0, 255), batch=self.batch, group=self.group['debug'])
             self.debugStats.append((number, label, text))
 
     def updateDebugStats(self):
@@ -65,11 +69,15 @@ class Util(object):
             label.y = self.window.height-(number+1)*16
             label.end_update()
 
+    def getScreenCenter(self):
+        '''Returns the on-screen pixel coordinates to the pixel in the middle of the screen'''
+        return (self.window.width / 2, self.window.height / 2)
+
     def blocksToPixels(self, (x, y)):
         '''Returns the on-screen pixel coordinates to the lower left corner pixel of the given block'''
-        return ((x - self.player.x) * Const.PPB + (self.window.width / 2)), (y - self.player.y) * Const.PPB + (self.window.height / 2)
+        return ((x - self.player.x) * 1.* Const.PPB * Const.ZOOM + (self.window.width / 2)), (y - self.player.y) * 1.* Const.PPB * Const.ZOOM + (self.window.height / 2)
 
-    def isBlockOnScreen(self,( x, y)):
-        blocksOutHor = self.window.width / 2 / Const.PPB + 1
-        blocksOutVert = self.window.height / 2 / Const.PPB + 1
+    def isBlockOnScreen(self, (x, y)):
+        blocksOutHor = self.window.width / 2. / Const.ZOOM / Const.PPB + 1
+        blocksOutVert = self.window.height / 2. / Const.ZOOM / Const.PPB + 1
         return x >= int(self.player.x - blocksOutHor) and x < int(self.player.x + blocksOutHor) and y >= int(self.player.y - blocksOutVert) and y < int(self.player.y + blocksOutVert)

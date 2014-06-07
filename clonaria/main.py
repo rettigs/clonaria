@@ -3,6 +3,7 @@
 import getopt, pyglet, sys, time
 from pyglet.window import key
 
+from const import Const
 from entity import Entity
 from model import Model
 from util import Util
@@ -44,20 +45,28 @@ if __name__ == '__main__':
     @window.event
     def on_draw():
         window.clear()
-        world.draw()
-
+        world.prepareDraw()
         if Util.get().debug:
-            batch.draw()
             Util.get().updateDebugStats()
-
-        player.draw()
+        player.prepareDraw()
+        batch.draw()
 
     def update(self):
         if keys[key.LEFT] or keys[key.A]:
             player.left()
         if keys[key.RIGHT] or keys[key.D]:
             player.right()
+        if keys[key.SPACE]:
+            player.jump()
+        if keys[key.PLUS] or keys[key.NUM_ADD]:
+            Const.ZOOM += 1. / Const.PPB
+        if keys[key.MINUS] or keys[key.NUM_SUBTRACT]:
+            Const.ZOOM -= 1. / Const.PPB
+        if keys[key.EQUAL]:
+            Const.ZOOM = 1
 
+        #player.applyGravity()
+        #player.applyFriction()
         player.move()
 
     pyglet.clock.schedule_interval(update, 1/60.)
