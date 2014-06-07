@@ -1,5 +1,9 @@
 ---
 type: default
+
+# The hitbox of this entity in form of a list of (x, y) points of the polygon.  Coordinates are in pixels, where (0, 0) refers to the lower left corner of the texture.  The hitbox will be scaled with the texture as needed, so make the hitbox match the texture.
+hitbox: '[(0, 0), (15, 0), (15, 15), (0, 15)]'
+
 # Depth is only a default value and can be modified when placing certain blocks. It can be:
 # 0: background (where it is behind entities)
 # 1: midground (where it is next to entities)

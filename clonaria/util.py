@@ -8,8 +8,8 @@ class Util(object):
 
     def __init__(self):
         self.debug = 0
-        self.blockModels = self.loadModels("../resources", "block")
-        self.entityModels = self.loadModels("../resources", "entity")
+        self.blockModels = self.loadModels('block')
+        self.entityModels = self.loadModels('entity')
         self.batch = pyglet.graphics.Batch()
         self.debugStats = []
         self.group = {}
@@ -20,28 +20,23 @@ class Util(object):
         self.group['debug'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS+2)
 
     @staticmethod
-    def loadModels(path, modeltype):
-        '''Loads flyweight models from yaml files given the path and model type'''
+    def loadModels(modeltype):
+        '''Loads flyweight models from yaml files given the model type'''
         models = {}
         defaultmodel = None
         counter = -1
-        for dict in yaml.load_all(open("{}/{}models.yml".format(path, modeltype), 'r')):
+        for dict in yaml.load_all(open("{}/{}models.yml".format(Const.RESOURCE_PATH, modeltype), 'r')):
             
             counter += 1
+            dict['modeltype'] = modeltype
+            model = Model(dict)
+            models[dict['type']] = model
             
             # Set the default model
-            model = Model(dict)
-            models[dict["type"]] = model
-            if dict["type"] == "default":
+            if dict['type'] == 'default':
                 defaultmodel = model
-            elif "defaultmodel" not in dict:
-                model.set("defaultmodel", defaultmodel)
-
-            # Load the texture file for each model
-            try:
-                model.set("texture", pyglet.image.load("{}/images/{}/{}.png".format(path, modeltype, dict["type"])))
-            except:
-                model.set("texture", pyglet.image.load("{}/images/{}/{}.png".format(path, modeltype, "default")))
+            elif 'defaultmodel' not in dict:
+                model.set('defaultmodel', defaultmodel)
 
         print "Loaded {} {} models".format(counter, modeltype)
         return models

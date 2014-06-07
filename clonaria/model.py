@@ -1,13 +1,26 @@
+import pyglet, shapely.geometry
+from const import Const
+
 class Model(object):
 
     def __init__(self, properties):
         self.properties = properties
 
+        # Eval the hitbox string to a list of tuples, then convert to a Polygon
+        if 'hitbox' in self.properties:
+            self.set('hitbox', shapely.geometry.polygon.Polygon(eval(self.get('hitbox'))))
+
+        # Load the texture
+        try:
+            self.set('texture', pyglet.image.load("{}/images/{}/{}.png".format(Const.RESOURCE_PATH, self.get('modeltype'), self.get('type'))))
+        except:
+            self.set('texture', pyglet.image.load("{}/images/{}/{}.png".format(Const.RESOURCE_PATH, self.get('modeltype'), 'default')))
+
     def get(self, prop):
         if prop in self.properties:
             return self.properties[prop]
-        elif "defaultmodel" in self.properties:
-            return self.get("defaultmodel").get(prop)
+        elif 'defaultmodel' in self.properties:
+            return self.get('defaultmodel').get(prop)
         else:
             return None
 
