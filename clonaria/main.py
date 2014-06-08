@@ -26,7 +26,7 @@ if __name__ == '__main__':
     Util.get().world = world = World("world1", (400, 400))
     world.generate()
 
-    Util.get().player = player = Player(Util.get().entityModels['player'], world.name, (world.width / 2, world.height / 2 + 1))
+    Util.get().player = player = Player(Util.get().entityModels['player'], world, (world.width / 2, world.height / 2 + 5))
 
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
@@ -40,7 +40,9 @@ if __name__ == '__main__':
                         '"player.x: {}".format(self.player.x)',
                         '"player.y: {}".format(self.player.y)',
                         '"player.vx: {}".format(self.player.vx)',
-                        '"player.vy: {}".format(self.player.vy)']
+                        '"player.vy: {}".format(self.player.vy)',
+                        '"player.stillJumping: {}".format(self.player.stillJumping)',
+                        '"player.againstBlockDown: {}".format(self.player.againstBlockDown)']
         Util.get().addDebugStats(debugStats)
 
     @window.event
@@ -51,13 +53,16 @@ if __name__ == '__main__':
             Util.get().updateDebugStats()
         player.prepareDraw()
         batch.draw()
+        pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16).texture.blit(*Util.get().blocksToPixels(player.getClosestBlockDown()))
 
     def update(self):
+        playerJumping = False
         if keys[key.LEFT] or keys[key.A]:
-            player.left()
+            player.walkLeft()
         if keys[key.RIGHT] or keys[key.D]:
-            player.right()
+            player.walkRight()
         if keys[key.SPACE]:
+            playerJumping = True
             player.jump()
         if keys[key.PLUS] or keys[key.NUM_ADD]:
             Const.ZOOM += 1. / Const.PPB
@@ -66,7 +71,10 @@ if __name__ == '__main__':
         if keys[key.EQUAL]:
             Const.ZOOM = 1
 
-        #player.applyGravity()
+        if not playerJumping or player.curJumpTicks < 1:
+            player.stillJumping = False
+
+        player.applyGravity()
         #player.applyFriction()
         player.move()
 

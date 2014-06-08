@@ -20,6 +20,8 @@ class World(object):
             return None
 
     def setBlockAt(self, x, y, l, blockType):
+        x = int(x)
+        y = int(y)
         if self.isValidCoords(x, y, l):
             self.layers[l].setBlockAt(x, y, blockType)
             return True
@@ -27,12 +29,16 @@ class World(object):
             return False
 
     def isEmptyAt(self, x, y, l):
+        x = int(x)
+        y = int(y)
         if self.isValidCoords(x, y, l):
             return self.layers[l].isEmptyAt(x, y)
         else:
             return False
 
     def isSolidAt(self, x, y, l):
+        x = int(x)
+        y = int(y)
         if self.isValidCoords(x, y, l):
             return self.layers[l].isSolidAt(x, y)
         else:

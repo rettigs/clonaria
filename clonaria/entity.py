@@ -10,20 +10,55 @@ class Entity(object):
         self.world = world
         self.location = self.x, self.y = location
         self.velocity = self.vx, self.vy = 0, 0
-        self.acceleration = self.ax, self.ay = Const.ACCELERATION_X, Const.ACCELERATION_Y
+        self.aWalk = Const.ACCELERATION_WALK
+        self.aGravity = Const.ACCELERATION_GRAVITY
+        self.aJump = Const.ACCELERATION_JUMP
         self.sprite = pyglet.sprite.Sprite(entityModel.get('texture'), batch=Util.get().batch, group=Util.get().group['entity'])
+        self.againstBlockDown = False
+        self.maxJumpTicks = Const.MAX_JUMP_TICKS
+        self.curJumpTicks = 0
+        self.stillJumping = False
 
     def prepareDraw(self):
         sx, sy = Util.get().blocksToPixels(self.location)
         self.sprite.position = sx, sy
         self.sprite.scale = Const.ZOOM
 
-    def left(self):
-        self.vx -= self.ax
+    def walkLeft(self):
+        self.vx -= self.aWalk
 
-    def right(self):
-        self.vx += self.ax
+    def walkRight(self):
+        self.vx += self.aWalk
+
+    def jump(self):
+        if self.againstBlockDown: # We are starting a new jump
+            self.stillJumping = True
+            self.againstBlockDown = False
+            self.curJumpTicks = self.maxJumpTicks
+            self.vy += self.aJump
+        elif self.stillJumping and self.curJumpTicks > 0 and self.vy > 0: # We are continuing an old jump
+            self.curJumpTicks -= 1
+            self.vy += Const.ACCELERATION_JUMP_HOLD
+
+    def applyGravity(self):
+        self.vy -= self.aGravity
+
+    def getClosestBlockDown(self):
+        x = self.x
+        y = self.y - 1
+        while self.world.isEmptyAt(x, y, 1):
+            y -= 1
+        return int(x), int(y)
 
     def move(self):
         self.x += self.vx
-        self.y += self.vy
+        willCollideY = False
+        diff = self.getClosestBlockDown()[1] - self.y + 1
+        print "vy:", self.vy
+        print "diff:", diff
+        if abs(diff) < abs(self.vy) and self.vy < 0:
+            self.y += diff
+            self.vy = 0
+            self.againstBlockDown = True
+        else:
+            self.y += self.vy
