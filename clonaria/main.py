@@ -49,11 +49,12 @@ if __name__ == '__main__':
     def on_draw():
         window.clear()
         world.prepareDraw()
+        player.prepareDraw()
         if Util.get().debug:
             Util.get().updateDebugStats()
-        player.prepareDraw()
         batch.draw()
-        pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16).texture.blit(*Util.get().blocksToPixels(player.getClosestBlockDown()))
+        if Util.get().debug:
+            pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16).texture.blit(*Util.get().blocksToPixels(player.getClosestBlockDown()))
 
     def update(self):
         playerJumping = False
