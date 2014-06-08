@@ -33,7 +33,6 @@ class Entity(object):
     def jump(self):
         if self.againstBlockDown: # We are starting a new jump
             self.stillJumping = True
-            self.againstBlockDown = False
             self.curJumpTicks = self.maxJumpTicks
             self.vy += self.aJump
         elif self.stillJumping and self.curJumpTicks > 0 and self.vy > 0: # We are continuing an old jump
@@ -59,6 +58,7 @@ class Entity(object):
         if abs(diff) < abs(self.vy) and self.vy < 0:
             self.y += diff
             self.vy = 0
-            self.againstBlockDown = True
         else:
             self.y += self.vy
+
+        self.againstBlockDown = diff == 0
