@@ -1,6 +1,7 @@
-import pyglet
+import copy, pyglet
 
 from const import Const
+from line import Line
 from util import Util
 
 class Entity(object):
@@ -51,11 +52,30 @@ class Entity(object):
 
     def move(self):
         self.x += self.vx
-        diff = self.getClosestBlockDown()[1] - self.y + 1
-        if abs(diff) < abs(self.vy) and self.vy < 0:
-            self.y += diff
+#        diff = self.getClosestBlockDown()[1] - self.y + 1
+#        if abs(diff) < abs(self.vy) and self.vy < 0:
+#            self.y += diff
+#            self.vy = 0
+#        else:
+#            self.y += self.vy
+#
+#        self.againstBlockDown = diff == 0
+        
+        # for each point on the player
+            # get closest block in the downward direction
+            # cast a line through it and get the intersections with the shape
+            # get the closest intersection, use distance as diff
+        # move the min of all diffs and the velocity
+        
+        testPlayerLoc = self.location
+        testBlockLoc = self.getClosestBlockDown()
+        testBlockPoly = copy.copy(self.world.getBlockAt(testBlockLoc[0], testBlockLoc[1], 1).get('hitbox'))
+        testBlockPoly.translate(testBlockLoc)
+        intersections = testBlockPoly.intersectLine(Line(testPlayerLoc, (testBlockLoc[0], testBlockLoc[1] - 1)))
+        distances = [abs(self.vy)]
+        for intersection in intersections:
+            distances.append(Util.distancePoint(intersection, testPlayerLoc))
+        mindistance = min(distances)
+        self.y -= min(distances)
+        if mindistance != abs(self.vy):
             self.vy = 0
-        else:
-            self.y += self.vy
-
-        self.againstBlockDown = diff == 0

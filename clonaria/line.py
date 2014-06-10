@@ -10,7 +10,7 @@ class Line(object):
         self.intercept = self.intercept()
 
     def __str__(self):
-        return "({}, {}) <=> ({}, {})".format(self.a[0], self.a[1], self.b[0], self.b[1])
+        return "Line(({}, {}), ({}, {}))".format(self.a[0], self.a[1], self.b[0], self.b[1])
 
     def slope(self):
         xdiff = self.bx - self.ax

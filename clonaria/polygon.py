@@ -5,6 +5,9 @@ class Polygon(object):
     def __init__(self, points):
         self.points = points
 
+    def __str__(self):
+        return "Polygon({})".format(self.points)
+
     def getLines(self):
         lines = []
         for i in xrange(len(self.points)):
@@ -17,3 +20,7 @@ class Polygon(object):
         for polyline in self.getLines():
             intersections + polyline.intersect(line)
         return intersections
+
+    def translate(self, (x, y)):
+        self.points = [(px+x, py+y) for px, py in self.points]
+        return self
