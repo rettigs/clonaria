@@ -1,8 +1,7 @@
 Dependencies
 ============
-* python/pypy 2.7
+* cpython/pypy 2.7
 * python-dev
-* libgeos-dev
 
 Instructions
 ============
