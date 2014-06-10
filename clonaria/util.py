@@ -51,6 +51,12 @@ class Util(object):
                     blocks.append((ix, iy))
         return blocks
 
+    @staticmethod
+    def distancePoint(a, b):
+         ax, ay = a
+         bx, by = b
+         return math.sqrt((bx-ax)**2 + (by-ay)**2)
+
     def addDebugStats(self, texts):
         '''Adds new debug stats to the HUD'''
         for text in texts:

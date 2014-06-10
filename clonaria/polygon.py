@@ -12,7 +12,8 @@ class Polygon(object):
         return lines
 
     def intersectLine(self, line):
+        '''Returns a list of intersection points between the lines of the given polygon and given line.'''
         intersections = []
-        for subline in self.getLines():
-            intersections.append(subline.intersect(line))
+        for polyline in self.getLines():
+            intersections + polyline.intersect(line)
         return intersections
