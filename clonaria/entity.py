@@ -51,10 +51,7 @@ class Entity(object):
 
     def move(self):
         self.x += self.vx
-        willCollideY = False
         diff = self.getClosestBlockDown()[1] - self.y + 1
-        print "vy:", self.vy
-        print "diff:", diff
         if abs(diff) < abs(self.vy) and self.vy < 0:
             self.y += diff
             self.vy = 0

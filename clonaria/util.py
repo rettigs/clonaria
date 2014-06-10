@@ -1,3 +1,4 @@
+from __future__ import division
 import os, pyglet, yaml
 from const import Const
 from model import Model
@@ -71,9 +72,9 @@ class Util(object):
 
     def blocksToPixels(self, (x, y)):
         '''Returns the on-screen pixel coordinates to the lower left corner pixel of the given block'''
-        return ((x - self.player.x) * 1.* Const.PPB * Const.ZOOM + (self.window.width / 2)), (y - self.player.y) * 1.* Const.PPB * Const.ZOOM + (self.window.height / 2)
+        return ((x - self.player.x) * 1 * Const.PPB * Const.ZOOM + (self.window.width / 2)), (y - self.player.y) * 1* Const.PPB * Const.ZOOM + (self.window.height / 2)
 
     def isBlockOnScreen(self, (x, y)):
-        blocksOutHor = self.window.width / 2. / Const.ZOOM / Const.PPB + 1
-        blocksOutVert = self.window.height / 2. / Const.ZOOM / Const.PPB + 1
+        blocksOutHor = self.window.width / 2 / Const.ZOOM / Const.PPB + 1
+        blocksOutVert = self.window.height / 2 / Const.ZOOM / Const.PPB + 1
         return x >= int(self.player.x - blocksOutHor) and x < int(self.player.x + blocksOutHor) and y >= int(self.player.y - blocksOutVert) and y < int(self.player.y + blocksOutVert)

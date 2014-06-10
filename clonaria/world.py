@@ -1,3 +1,4 @@
+from __future__ import division
 import pyglet, random
 from block import Block
 from const import Const
@@ -60,14 +61,14 @@ class World(object):
                 self.setBlockAt(x, y, 1, dirt)
 
         sand = Util.get().blockModels['sand']
-        for i in xrange(w*h/400):
+        for i in xrange(w*h//400):
             blocks = Util.get().circle(random.random() * w, random.random() * h, random.random() * 20)
             for block in blocks:
                 if not self.isEmptyAt(block[0], block[1], 1):
                     self.setBlockAt(block[0], block[1], 1, sand)
 
         gravel = Util.get().blockModels['gravel']
-        for i in xrange(w*h/800):
+        for i in xrange(w*h//800):
             blocks = Util.get().circle(random.random() * w, random.random() * h, random.random() * 20)
             for block in blocks:
                 if not self.isEmptyAt(block[0], block[1], 1):
@@ -107,8 +108,8 @@ class WorldLayer(object):
         pass
         window = Util.get().window
         player = Util.get().player
-        blocksOutHor = window.width / 2. / Const.ZOOM / Const.PPB + 1
-        blocksOutVert = window.height / 2. / Const.ZOOM / Const.PPB + 1
+        blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1
+        blocksOutVert = window.height / 2 / Const.ZOOM / Const.PPB + 1
         batch = Util.get().batch
 
         for y in xrange(int(player.y - blocksOutVert), int(player.y + blocksOutVert)):

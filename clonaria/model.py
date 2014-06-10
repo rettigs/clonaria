@@ -1,14 +1,15 @@
-import pyglet, shapely.geometry
+import pyglet
 from const import Const
+from polygon import Polygon
 
 class Model(object):
 
     def __init__(self, properties):
         self.properties = properties
 
-        # Eval the hitbox string to a list of tuples, then convert to a Polygon
+        #Eval the hitbox string to a list of (x, y) coordinate tuples, then convert to a Polygon
         if 'hitbox' in self.properties:
-            self.set('hitbox', shapely.geometry.polygon.Polygon(eval(self.get('hitbox'))))
+            self.set('hitbox', Polygon(eval(self.get('hitbox'))))
 
         # Load the texture
         try:
