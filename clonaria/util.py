@@ -4,13 +4,12 @@ from const import Const
 from model import Model
 from singleton import Singleton
 
-@Singleton
-class Util(object):
+class Util(Singleton):
 
-    def __init__(self):
+    def init(self):
         self.debug = 0
-        self.blockModels = self.loadModels('block')
-        self.entityModels = self.loadModels('entity')
+        self.blockModels = Util.loadModels('block')
+        self.entityModels = Util.loadModels('entity')
         self.batch = pyglet.graphics.Batch()
         self.debugStats = []
         self.group = {}

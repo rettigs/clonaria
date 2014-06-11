@@ -15,14 +15,14 @@ class Entity(object):
         self.aWalk = Const.ACCELERATION_WALK
         self.aGravity = Const.ACCELERATION_GRAVITY
         self.aJump = Const.ACCELERATION_JUMP
-        self.sprite = pyglet.sprite.Sprite(entityModel.get('texture'), batch=Util.get().batch, group=Util.get().group['entity'])
+        self.sprite = pyglet.sprite.Sprite(entityModel.get('texture'), batch=Util().batch, group=Util().group['entity'])
         self.againstBlockDown = False
         self.maxJumpTicks = Const.MAX_JUMP_TICKS
         self.curJumpTicks = 0
         self.stillJumping = False
 
     def prepareDraw(self):
-        sx, sy = Util.get().blocksToPixels(self.location)
+        sx, sy = Util().blocksToPixels(self.location)
         self.sprite.position = sx, sy
         self.sprite.scale = Const.ZOOM
 

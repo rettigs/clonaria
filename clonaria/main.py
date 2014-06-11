@@ -20,23 +20,23 @@ if __name__ == '__main__':
 
     for o, a in opts:
         if o == "-d":
-            Util.get().debug += 1
+            Util().debug += 1
 
-    Util.get().window = window = pyglet.window.Window(resizable=True)
+    Util().window = window = pyglet.window.Window(resizable=True)
 
-    Util.get().world = world = World("world1", (400, 400))
+    Util().world = world = World("world1", (400, 400))
     world.generate()
 
-    Util.get().player = player = Player(Util.get().entityModels['player'], world, (world.width / 2, world.height / 2 + 5))
+    Util().player = player = Player(Util().entityModels['player'], world, (world.width / 2, world.height / 2 + 5))
 
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
 
     pyglet.gl.glClearColor(0, 40, 200, 0)
 
-    batch = Util.get().batch
+    batch = Util().batch
 
-    if Util.get().debug:
+    if Util().debug:
         debugStats = [  '"FPS: {}".format(pyglet.clock.get_fps())',
                         '"player.x: {}".format(self.player.x)',
                         '"player.y: {}".format(self.player.y)',
@@ -44,18 +44,18 @@ if __name__ == '__main__':
                         '"player.vy: {}".format(self.player.vy)',
                         '"player.stillJumping: {}".format(self.player.stillJumping)',
                         '"player.againstBlockDown: {}".format(self.player.againstBlockDown)']
-        Util.get().addDebugStats(debugStats)
+        Util().addDebugStats(debugStats)
 
     @window.event
     def on_draw():
         window.clear()
         world.prepareDraw()
         player.prepareDraw()
-        if Util.get().debug:
-            Util.get().updateDebugStats()
+        if Util().debug:
+            Util().updateDebugStats()
         batch.draw()
-        if Util.get().debug:
-            pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16).texture.blit(*Util.get().blocksToPixels(player.getClosestBlockDown()))
+        if Util().debug:
+            pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16).texture.blit(*Util().blocksToPixels(player.getClosestBlockDown()))
 
     def update(self):
         playerJumping = False

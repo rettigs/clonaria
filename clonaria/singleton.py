@@ -1,41 +1,16 @@
 class Singleton(object):
     """
-    A non-thread-safe helper class to ease implementing singletons.
-    This should be used as a decorator -- not a metaclass -- to the
-    class that should be a singleton.
+    Taken from https://www.python.org/download/releases/2.2/descrintro/#__new__
 
-    The decorated class can define one `__init__` function that
-    takes only the `self` argument. Other than that, there are
-    no restrictions that apply to the decorated class.
-
-    To get the singleton instance, use the `Instance` method. Trying
-    to use `__call__` will result in a `TypeError` being raised.
-
-    Limitations: The decorated class cannot be inherited from.
-
+    Objects that inherit this class are instantiated the first time they are called.
+    Further instantiations return the same object.
     """
-
-    def __init__(self, decorated):
-        self._decorated = decorated
-
-    def Instance(self):
-        """
-        Returns the singleton instance. Upon its first call, it creates a
-        new instance of the decorated class and calls its `__init__` method.
-        On all subsequent calls, the already created instance is returned.
-
-        """
-        try:
-            return self._instance
-        except AttributeError:
-            self._instance = self._decorated()
-            return self._instance
-
-    def get(self):
-        return self.Instance()
-
-    def __call__(self):
-        raise TypeError('Singletons must be accessed through `Instance()`.')
-
-    def __instancecheck__(self, inst):
-        return isinstance(inst, self._decorated)
+    def __new__(cls, *args, **kwds):
+        it = cls.__dict__.get("__it__")
+        if it is not None:
+            return it
+        cls.__it__ = it = object.__new__(cls)
+        it.init(*args, **kwds)
+        return it
+    def init(self, *args, **kwds):
+        pass

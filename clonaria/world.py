@@ -50,26 +50,26 @@ class World(object):
         w = self.width
         h = self.height
 
-        air = Util.get().blockModels['air']
+        air = Util().blockModels['air']
         for x in xrange(w):
             for y in xrange(h):
                 self.setBlockAt(x, y, 1, air)
 
-        dirt = Util.get().blockModels['dirt']
+        dirt = Util().blockModels['dirt']
         for x in xrange(w):
             for y in xrange(int(h/2 + random.random() * 5)):
                 self.setBlockAt(x, y, 1, dirt)
 
-        sand = Util.get().blockModels['sand']
+        sand = Util().blockModels['sand']
         for i in xrange(w*h//400):
-            blocks = Util.get().circle(random.random() * w, random.random() * h, random.random() * 20)
+            blocks = Util.circle(random.random() * w, random.random() * h, random.random() * 20)
             for block in blocks:
                 if not self.isEmptyAt(block[0], block[1], 1):
                     self.setBlockAt(block[0], block[1], 1, sand)
 
-        gravel = Util.get().blockModels['gravel']
+        gravel = Util().blockModels['gravel']
         for i in xrange(w*h//800):
-            blocks = Util.get().circle(random.random() * w, random.random() * h, random.random() * 20)
+            blocks = Util.circle(random.random() * w, random.random() * h, random.random() * 20)
             for block in blocks:
                 if not self.isEmptyAt(block[0], block[1], 1):
                     self.setBlockAt(block[0], block[1], 1, gravel)
@@ -94,23 +94,23 @@ class WorldLayer(object):
         return self.blocks[x][y]
 
     def setBlockAt(self, x, y, blockType):
-        #self.blocks[x][y] = Block(Util.get().blockModels[blockType], self.world, (x, y), self.layer)
+        #self.blocks[x][y] = Block(Util().blockModels[blockType], self.world, (x, y), self.layer)
         self.blocks[x][y] = blockType
         return True
 
     def isEmptyAt(self, x, y):
-        return self.getBlockAt(x, y) == Util.get().blockModels['air']
+        return self.getBlockAt(x, y) == Util().blockModels['air']
 
     def isSolidAt(self, x, y):
         return self.getBlockAt(x, y).get('solid')
 
     def prepareDraw(self):
         pass
-        window = Util.get().window
-        player = Util.get().player
+        window = Util().window
+        player = Util().player
         blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1
         blocksOutVert = window.height / 2 / Const.ZOOM / Const.PPB + 1
-        batch = Util.get().batch
+        batch = Util().batch
 
         for y in xrange(int(player.y - blocksOutVert), int(player.y + blocksOutVert)):
             for x in xrange(int(player.x - blocksOutHor), int(player.x + blocksOutHor)):
@@ -118,18 +118,18 @@ class WorldLayer(object):
                     try:
                         block = self.blocks[x][y]
                         if block.get('type') != 'air':
-                            sx, sy = Util.get().blocksToPixels((x, y))
+                            sx, sy = Util().blocksToPixels((x, y))
                             if (x, y) in self.blockSprites:
                                 oldSprite = self.blockSprites[x, y]
                                 oldSprite.position = sx, sy
                                 oldSprite.scale = Const.ZOOM
                             else:
-                                newSprite = pyglet.sprite.Sprite(self.blocks[x][y].get('texture'), x=sx, y=sy, batch=batch, group=Util.get().group['layer0'])
+                                newSprite = pyglet.sprite.Sprite(self.blocks[x][y].get('texture'), x=sx, y=sy, batch=batch, group=Util().group['layer0'])
                                 newSprite.scale = Const.ZOOM
                                 self.blockSprites[x, y] = newSprite
                     except: # Don't crash if we get to the edge of the world, just don't render anything there
                         pass
 
         for pos in self.blockSprites.keys():
-            if not Util.get().isBlockOnScreen(pos):
+            if not Util().isBlockOnScreen(pos):
                 del self.blockSprites[pos]

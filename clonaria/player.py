@@ -9,8 +9,8 @@ class Player(Entity):
 
     def __init__(self, entityModel, world, location):
         super(Player, self).__init__(entityModel, world, location)
-        sx, sy = Util.get().getScreenCenter()
-        self.sprite = pyglet.sprite.Sprite(entityModel.get('texture'), batch=Util.get().batch, group=Util.get().group['player'], x=sx, y=sy)
+        sx, sy = Util().getScreenCenter()
+        self.sprite = pyglet.sprite.Sprite(entityModel.get('texture'), batch=Util().batch, group=Util().group['player'], x=sx, y=sy)
 
     def prepareDraw(self):
         self.sprite.scale = Const.ZOOM
