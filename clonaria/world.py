@@ -11,10 +11,10 @@ class World(object):
         self.size = self.width, self.height = size
         self.layers = [WorldLayer(self.name, l, (self.width, self.height)) for l in xrange(Const.NUM_LAYERS)]
 
-    def isValidCoords(self, x, y, l):
+    def isValidCoords(self, x, y, l=1):
         return x >= 0 and y >= 0 and x < self.width and y < self.height and l >= 0 and l < Const.NUM_LAYERS
 
-    def getBlockAt(self, x, y, l):
+    def getBlockAt(self, x, y, l=1):
         if self.isValidCoords(x, y, l):
             return self.layers[l].getBlockAt(x, y)
         else:
@@ -29,7 +29,7 @@ class World(object):
         else:
             return False
 
-    def isEmptyAt(self, x, y, l):
+    def isEmptyAt(self, x, y, l=1):
         x = int(x)
         y = int(y)
         if self.isValidCoords(x, y, l):
@@ -37,7 +37,7 @@ class World(object):
         else:
             return False
 
-    def isSolidAt(self, x, y, l):
+    def isSolidAt(self, x, y, l=1):
         x = int(x)
         y = int(y)
         if self.isValidCoords(x, y, l):
