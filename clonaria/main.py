@@ -80,5 +80,5 @@ if __name__ == '__main__':
         #player.applyFriction()
         player.move()
 
-    pyglet.clock.schedule_interval(update, 1/60.)
+    pyglet.clock.schedule_interval(update, 1/Const.TPS)
     pyglet.app.run()
