@@ -1,3 +1,4 @@
+from __future__ import division
 from line import Line
 
 class Polygon(object):

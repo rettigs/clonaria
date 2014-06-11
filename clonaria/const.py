@@ -1,3 +1,5 @@
+from __future__ import division
+
 class Const(object):
     RESOURCE_PATH = "../resources"
     TICKS_PER_SECOND = TPS = 60

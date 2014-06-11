@@ -1,3 +1,4 @@
+from __future__ import division
 import pyglet
 from const import Const
 from util import Util

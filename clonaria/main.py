@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import division
 import getopt, pyglet, sys, time
 from pyglet.window import key
 
