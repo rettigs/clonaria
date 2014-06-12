@@ -1,6 +1,5 @@
 from __future__ import division
 import pyglet, random
-from block import Block
 from const import Const
 from util import Util
 
@@ -94,7 +93,6 @@ class WorldLayer(object):
         return self.blocks[x][y]
 
     def setBlockAt(self, x, y, blockType):
-        #self.blocks[x][y] = Block(Util().blockModels[blockType], self.world, (x, y), self.layer)
         self.blocks[x][y] = blockType
         return True
 
