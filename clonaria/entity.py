@@ -69,7 +69,7 @@ class Entity(object):
         testPlayerLocs = [self.location, Util.addTuples(self.location, (1, 0))]
         distances = []
         for testPlayerLoc in testPlayerLocs:
-            testBlockLoc = Util.getClosestBlockDown(self.world, testPlayerLoc)
+            testBlockLoc = Util.getClosestSolidBlockDown(self.world, testPlayerLoc)
             testBlockPoly = copy.copy(self.world.getBlockAt(*testBlockLoc).get('hitbox'))
             testBlockPoly.translate(testBlockLoc)
             testLine = Line((testPlayerLoc[0], testBlockLoc[1] + 1), (testPlayerLoc[0], testBlockLoc[1] - 1))

@@ -61,8 +61,8 @@ class Util(Singleton):
         return tuple(map(sum, zip(a, b)))
 
     @staticmethod
-    def getClosestBlockDown(world, (x, y), l=1):
-        while world.isEmptyAt(x, y, l):
+    def getClosestSolidBlockDown(world, (x, y), l=1):
+        while not world.isSolidAt(x, y, l):
             y -= 1
         return int(x), int(y)
 

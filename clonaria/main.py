@@ -56,9 +56,9 @@ if __name__ == '__main__':
         player.prepareDraw()
         if Util().debug:
             Util().updateDebugStats()
-            Util().debugCollisionBlockLeft.position = Util().blocksToPixels(Util.getClosestBlockDown(player.world, player.location))
+            Util().debugCollisionBlockLeft.position = Util().blocksToPixels(Util.getClosestSolidBlockDown(player.world, player.location))
             Util().debugCollisionBlockLeft.scale = Const.ZOOM
-            Util().debugCollisionBlockRight.position = Util().blocksToPixels(Util.getClosestBlockDown(player.world, Util.addTuples(player.location, (1, 0))))
+            Util().debugCollisionBlockRight.position = Util().blocksToPixels(Util.getClosestSolidBlockDown(player.world, Util.addTuples(player.location, (1, 0))))
             Util().debugCollisionBlockRight.scale = Const.ZOOM
         batch.draw()
 
