@@ -10,8 +10,8 @@ class Entity(object):
     def __init__(self, entityModel, world, location):
         self.entityModel = entityModel
         self.world = world
-        self.location = self.x, self.y = location
-        self.velocity = self.vx, self.vy = 0, 0
+        self.x, self.y = location
+        self.vx, self.vy = 0, 0
         self.aWalk = Const.ACCELERATION_WALK
         self.aGravity = Const.ACCELERATION_GRAVITY
         self.aJump = Const.ACCELERATION_JUMP
@@ -20,6 +20,22 @@ class Entity(object):
         self.maxJumpTicks = Const.MAX_JUMP_TICKS
         self.curJumpTicks = 0
         self.stillJumping = False
+
+    @property
+    def location(self):
+        return (self.x, self.y)
+
+    @location.setter
+    def location(self, point):
+        self.x, self.y = point
+
+    @property
+    def velocity(self):
+        return (self.vx, self.vy)
+
+    @velocity.setter
+    def velocity(self, vector):
+        self.vx, self.vy = vector
 
     def prepareDraw(self):
         sx, sy = Util().blocksToPixels(self.location)
@@ -39,44 +55,33 @@ class Entity(object):
             self.vy += self.aJump
         elif self.stillJumping and self.curJumpTicks > 0 and self.vy > 0: # We are continuing an old jump
             self.curJumpTicks -= 1
-            self.vy += Const.ACCELERATION_JUMP_HOLD
+            self.vy += Const.ACCELERATION_JUMP_HOLD * self.maxJumpTicks / (self.maxJumpTicks - self.curJumpTicks)
 
     def applyGravity(self):
         self.vy -= self.aGravity
 
-    def getClosestBlockDown(self):
-        x = self.x
-        y = self.y - 1
-        while self.world.isEmptyAt(x, y, 1):
-            y -= 1
-        return int(x), int(y)
-
     def move(self):
+        
+        # Handle horizontal movement
         self.x += self.vx
-#        diff = self.getClosestBlockDown()[1] - self.y + 1
-#        if abs(diff) < abs(self.vy) and self.vy < 0:
-#            self.y += diff
-#            self.vy = 0
-#        else:
-#            self.y += self.vy
-#
-#        self.againstBlockDown = diff == 0
         
-        # for each point on the player
-            # get closest block in the downward direction
-            # cast a line through it and get the intersections with the shape
-            # get the closest intersection, use distance as diff
-        # move the min of all diffs and the velocity
-        
-        testPlayerLoc = self.location
-        testBlockLoc = self.getClosestBlockDown()
-        testBlockPoly = copy.copy(self.world.getBlockAt(testBlockLoc[0], testBlockLoc[1], 1).get('hitbox'))
-        testBlockPoly.translate(testBlockLoc)
-        intersections = testBlockPoly.intersectLine(Line(testPlayerLoc, (testBlockLoc[0], testBlockLoc[1] - 1)))
-        distances = [abs(self.vy)]
-        for intersection in intersections:
-            distances.append(Util.distancePoint(intersection, testPlayerLoc))
-        mindistance = min(distances)
-        self.y -= min(distances)
-        if mindistance != abs(self.vy):
+        # Handle vertical movement and downward block collision
+        testPlayerLocs = [self.location, Util.addTuples(self.location, (1, 0))]
+        distances = []
+        for testPlayerLoc in testPlayerLocs:
+            testBlockLoc = Util.getClosestBlockDown(self.world, testPlayerLoc)
+            testBlockPoly = copy.copy(self.world.getBlockAt(*testBlockLoc).get('hitbox'))
+            testBlockPoly.translate(testBlockLoc)
+            testLine = Line((testPlayerLoc[0], testBlockLoc[1] + 1), (testPlayerLoc[0], testBlockLoc[1] - 1))
+            intersections = testBlockPoly.intersectLine(testLine)
+            for intersection in intersections:
+                distances.append(abs(intersection[1] - testPlayerLoc[1]))
+
+        minDistance = min(distances)
+        if abs(minDistance) < abs(self.vy) and self.vy < 0:
+            self.y -= minDistance
             self.vy = 0
+        else:
+            self.y += self.vy
+
+        self.againstBlockDown = minDistance == 0

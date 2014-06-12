@@ -46,6 +46,9 @@ if __name__ == '__main__':
                         '"player.againstBlockDown: {}".format(self.player.againstBlockDown)']
         Util().addDebugStats(debugStats)
 
+        Util().debugCollisionBlockLeft = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16), batch=Util().batch, group=Util().group['debug'])
+        Util().debugCollisionBlockRight = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16), batch=Util().batch, group=Util().group['debug'])
+
     @window.event
     def on_draw():
         window.clear()
@@ -53,9 +56,11 @@ if __name__ == '__main__':
         player.prepareDraw()
         if Util().debug:
             Util().updateDebugStats()
+            Util().debugCollisionBlockLeft.position = Util().blocksToPixels(Util.getClosestBlockDown(player.world, player.location))
+            Util().debugCollisionBlockLeft.scale = Const.ZOOM
+            Util().debugCollisionBlockRight.position = Util().blocksToPixels(Util.getClosestBlockDown(player.world, Util.addTuples(player.location, (1, 0))))
+            Util().debugCollisionBlockRight.scale = Const.ZOOM
         batch.draw()
-        if Util().debug:
-            pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16).texture.blit(*Util().blocksToPixels(player.getClosestBlockDown()))
 
     def update(self):
         playerJumping = False

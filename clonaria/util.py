@@ -1,5 +1,5 @@
 from __future__ import division
-import os, pyglet, yaml
+import math, os, pyglet, yaml
 from const import Const
 from model import Model
 from singleton import Singleton
@@ -55,6 +55,16 @@ class Util(Singleton):
          ax, ay = a
          bx, by = b
          return math.sqrt((bx-ax)**2 + (by-ay)**2)
+
+    @staticmethod
+    def addTuples(a, b):
+        return tuple(map(sum, zip(a, b)))
+
+    @staticmethod
+    def getClosestBlockDown(world, (x, y), l=1):
+        while world.isEmptyAt(x, y, l):
+            y -= 1
+        return int(x), int(y)
 
     def addDebugStats(self, texts):
         '''Adds new debug stats to the HUD'''

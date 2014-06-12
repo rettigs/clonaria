@@ -19,7 +19,7 @@ class Polygon(object):
         '''Returns a list of intersection points between the lines of the given polygon and given line.'''
         intersections = []
         for polyline in self.getLines():
-            intersections + polyline.intersect(line)
+            intersections.extend(polyline.intersect(line))
         return intersections
 
     def translate(self, (x, y)):

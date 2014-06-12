@@ -7,7 +7,7 @@ class Line(object):
         self.a = self.ax, self.ay = pointA
         self.b = self.bx, self.by = pointB
         self.slope = self.slope()
-        self.intercept = self.intercept()
+        self.yintercept = self.yintercept()
 
     def __str__(self):
         return "Line(({}, {}), ({}, {}))".format(self.a[0], self.a[1], self.b[0], self.b[1])
@@ -23,17 +23,25 @@ class Line(object):
 
         return slope
 
-    def intercept(self):
+    def yintercept(self):
         return self.ay - self.slope * self.ax
 
     def intersect(self, line):
-        '''Returns a list containing 0, 1, or 2 intersection points between the given lines. If the two lines are equal, the second line's domain and range are used to approximate intersection points.'''
+        '''Returns a list containing 0, 1, or 2 intersection points between the given lines. If the two lines are equal, the first line's endpoints are returned as intersection points.'''
         # If they have the same slope...
-        if self.slope == line.slope or (math.isnan(self.slope) and math.isnan(line.slope)):
-            # ...and the same intercept, they are the same line; as a simplification, return the min/max domain/range points of the second line as intersections
-            if self.intercept == line.intercept or (math.isnan(self.slope) and math.isnan(line.slope)):
-                return [(min(line.ax, line.bx), min(line.ay, line.by)), (max(line.ax, line.bx), max(line.ay, line.by))]
-            # ...but different intercepts, there is no intersection
+        if self.slope == line.slope:
+            # ...and the same yintercept, they are the same line; as a simplification, return the endpoints of the first line as intersections
+            if self.yintercept == line.yintercept or (math.isnan(self.slope) and math.isnan(line.slope)):
+                return [self.a, self.b]
+            # ...but different yintercepts, there is no intersection
+            else:
+                return []
+        # If they are both vertical...
+        elif math.isnan(self.slope) and math.isnan(line.slope):
+            # ...and have same xintercept, they are the same line; as a simplification, return the endpoints of the first line as intersections
+            if self.ax == line.ax:
+                return [self.a, self.b]
+            # ...but have different xintercepts, there is no intersection
             else:
                 return []
         # If one is vertical, the x intersection will happen there
@@ -43,9 +51,9 @@ class Line(object):
             xintersection = line.ax
         # Otherwise, calculate the x intersection normally
         else:
-            xintersection = (line.intercept - self.intercept) / (self.slope - line.slope)
+            xintersection = (line.yintercept - self.yintercept) / (self.slope - line.slope)
 
-        yintersection = self.slope * xintersection + self.intercept
+        yintersection = self.slope * xintersection + self.yintercept
         intersection = (xintersection, yintersection)
 
         return [intersection]
