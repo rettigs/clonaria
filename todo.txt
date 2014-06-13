@@ -14,10 +14,25 @@
 - Double buffer all AI/entire world?  This will require lots of resources and/or refactoring, so only do it if I encounter or think of major problems.
 - process entity AI/liquids concurrently?  This should be easier to do if we double buffer them, and may be important if they're intensive and/or numerous.
 - Use command classes to make AI simpler (they move the same way a player does, just with artificially generated commands instead of keyboard-generated ones): http://gameprogrammingpatterns.com/command.html
-- Quatrie for sparse world layer implementation
+- Quatrie for sparse world layer implementation?  Maybe Numpy?
 - Better world generation
+    - Implement terrain by randomizing height of middle and edges, then recursively between each point whilst stepping down the range until single-block granularity is reached.
+    - Implement caves/tunnels by spawning random lines of random length that recursively eat away blocks according to a random TTL so we get tunnels of variable width.  Each tunnel may also spawn additional tunnels either from the ends (more common) or random points in the middle (less common).  Constants dictating the ranges of these random numbers can be customized for certain biomes upon world generation.
 - Use math to make acceleration consistent with variable timesteps (so slow computers can play normally, just choppier)
 - Use event-based paradigms?  This requires more research to know if this would be good for a game.
+- Implement biomes (effects won't be visible until I also implement music, background scenery, and mobs).
+    - A single area can be in multiple biomes at once if there are enough biome-specific blocks of each type nearby.
+    - Calculate biomes on-the-fly on a point-by-point basis?  This eliminates the need to store and constantly update biome information (as biomes are dynamic and are determined by the number of biome-specific blocks in the area).  Without this, large worlds would be bogged down by constant biome updates as certain types of biomes spread all around the world.
+        - For example, to spawn a monster, a random point just offscreen is chosen as the spawn point.  To determine what kind of monster will spawn, the spawn point has its biome(s) calculated by counting the number of biome-specific blocks within a certian radius.
+        - For example, to determine what music and background scenery to provide the player with, their location is taken once a second (or some other sufficiently often period) and their biome is calculated.
+        - If calculating these biomes is too computationally intensive:
+            - This would probably be easy to calculate in a second core (as it only reads world state rather than modifying it).  Even if the value of a block is changed during calculation, the worst that would happen is a slight biome miscalculation, which would be barely noticeable in most cases and would be soon fixed anyway by a later recalculation.
+            - This would also probably be easy to cache.  A possible implementation could involve using only every n (maybe around 8) blocks or so for biome calculations.  Any biome requests for a given point would return the biome of the nearest nth block.  This way, if a player stays in the same spot for a while, the biome is not continuously recalculated, but is instead read from cache.  The cache for each point can periodically expire (such as after 5 minutes).
 
 Current Tasks:
 - entity movement physics (player in particular)
+    - fix 1-block-wide entities not fitting into 1-block-wide holes.
+        - simply make entity hitboxes slightly smaller in the config?  Or artificially shrink them slightly during collision calculations?
+    - decide how to choose raycast start positions on entities.  Perhaps start at all entity hitbox points, plus have a granularity constant that can be tweaked to allow additional rays to be cast between the hitbox points.  For example, a granularity of 1 block could mean that if an entity is 2 blocks high, rays will be cast not just from the top and bottom of the entity, but also from the middle so that the entity doesn't impale itself onto blocks.  If performance is not an issue, granularity could be bumped to 0.5 or even 0.25 to ensure that entities collide properly with small blocks as well (such as half blocks).
+        - to save on computations, don't cast rays from points directly behind others.  For example, if an entity has 3 raycast points along its vertical left side, only cast from the bottom one while calculating downward collision, and don't use any of them for rightward calculations.  Use all 3 for leftward calculations.
+        - collision is another thing that could possibly see benefits from concurrency, particularly since it is somewhat intensive and only reads world state, rather than writing it.
