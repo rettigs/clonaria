@@ -6,8 +6,9 @@ Dependencies
 Instructions
 ============
     pip install -r requirements.txt
-    ./clonaria/main.py
+    cd clonaria
+    ./main.py
 
 Notes
 =====
-main.py may be passed the -d flag to show debug information such as FPS and player position
+main.py may be passed the -d flag to show debug information such as FPS and player position.
