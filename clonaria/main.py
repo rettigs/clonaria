@@ -2,7 +2,7 @@
 
 from __future__ import division
 import getopt, pyglet, sys, time
-from pyglet.window import key
+from pyglet.window import key, mouse
 
 from const import Const
 from entity import Entity
@@ -32,6 +32,11 @@ if __name__ == '__main__':
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
 
+    # Implement mouse state like the keyboard has because pyglet lacks one
+    buttons = []
+    Util().mouseLoc = 0, 0
+
+    # Set window background color
     pyglet.gl.glClearColor(0, 40, 200, 0)
 
     batch = Util().batch
@@ -47,6 +52,24 @@ if __name__ == '__main__':
                         '"player.againstBlockLeft: {}".format(self.player.againstBlockLeft)']
         Util().addDebugStats(debugStats)
 
+        Util().debugTarget = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,0,0,128)).create_image(16, 16), batch=Util().batch, group=Util().group['debug'])
+
+    @window.event
+    def on_mouse_press(x, y, button, modifiers):
+        buttons.append(button)
+
+    @window.event
+    def on_mouse_release(x, y, button, modifiers):
+        buttons.remove(button)
+
+    @window.event
+    def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+        Util().mouseLoc = x, y
+
+    @window.event
+    def on_mouse_motion(x, y, dx, dy):
+        Util().mouseLoc = x, y
+
     @window.event
     def on_draw():
         window.clear()
@@ -55,11 +78,14 @@ if __name__ == '__main__':
         if Util().debug:
             Util().prepareDrawDebugStats()
             Util().prepareDrawDebugBlocks()
+            Util().prepareDrawDebugTarget()
 
         batch.draw()
 
     def update(self):
         playerJumping = False
+
+        # Handle keyboard input
         if keys[key.LEFT] or keys[key.A]:
             player.walkLeft()
         if keys[key.RIGHT] or keys[key.D]:
@@ -73,6 +99,17 @@ if __name__ == '__main__':
             Const.ZOOM -= 1. / Const.PPB
         if keys[key.EQUAL]:
             Const.ZOOM = 1
+        
+        # Handle mouse input
+        if mouse.LEFT in buttons:
+            loc = Util().pixelsToBlocks(Util().mouseLoc)
+            world.setBlockAt(*loc)
+        if mouse.MIDDLE in buttons:
+            loc = Util().pixelsToBlocks(Util().mouseLoc)
+            world.setBlockAt(*loc, blockType=Util().blockModels['halfdirt'])
+        if mouse.RIGHT in buttons:
+            loc = Util().pixelsToBlocks(Util().mouseLoc)
+            world.setBlockAt(*loc, blockType=Util().blockModels['cone'])
 
         if not playerJumping or player.curJumpTicks < 1:
             player.stillJumping = False

@@ -113,13 +113,23 @@ class Util(Singleton):
             sprite.position = self.blocksToPixels(Util.getClosestSolidBlockDown(self.player.world, block))
             sprite.scale = Const.ZOOM
 
+    def prepareDrawDebugTarget(self):
+        '''Prepares the mouse-targeted debug block to be drawn'''
+
+        self.debugTarget.position = self.blocksToPixels(self.pixelsToBlocks(self.mouseLoc))
+        self.debugTarget.scale = Const.ZOOM
+
     def getScreenCenter(self):
         '''Returns the on-screen pixel coordinates to the pixel in the middle of the screen'''
         return (self.window.width / 2, self.window.height / 2)
 
     def blocksToPixels(self, (x, y)):
         '''Returns the on-screen pixel coordinates to the lower left corner pixel of the given block'''
-        return ((x - self.player.x) * 1 * Const.PPB * Const.ZOOM + (self.window.width / 2)), (y - self.player.y) * 1* Const.PPB * Const.ZOOM + (self.window.height / 2)
+        return ((x - self.player.x) * Const.PPB * Const.ZOOM + (self.window.width / 2)), (y - self.player.y) * Const.PPB * Const.ZOOM + (self.window.height / 2)
+
+    def pixelsToBlocks(self, (x, y)):
+        '''Returns the world coordinates of the block at the given on-screen pixel coordinates'''
+        return ((int) ((math.floor(x) - (self.window.width / 2)) / Const.PPB / Const.ZOOM + self.player.x), (int) ((math.floor(y) - (self.window.height / 2)) / Const.PPB / Const.ZOOM + self.player.y))
 
     def isBlockOnScreen(self, (x, y)):
         blocksOutHor = self.window.width / 2 / Const.ZOOM / Const.PPB + 1

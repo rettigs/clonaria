@@ -19,7 +19,7 @@ class World(object):
         else:
             return None
 
-    def setBlockAt(self, x, y, l, blockType):
+    def setBlockAt(self, x, y, l=1, blockType=Util().blockModels['air']):
         x = int(x)
         y = int(y)
         if self.isValidCoords(x, y, l):
@@ -93,7 +93,9 @@ class WorldLayer(object):
         return self.blocks[x][y]
 
     def setBlockAt(self, x, y, blockType):
-        self.blocks[x][y] = blockType
+        self.blocks[x][y] = blockType 
+        if (x, y) in self.blockSprites:
+            del self.blockSprites[(x, y)]
         return True
 
     def isEmptyAt(self, x, y):
@@ -122,7 +124,7 @@ class WorldLayer(object):
                                 oldSprite.position = sx, sy
                                 oldSprite.scale = Const.ZOOM
                             else:
-                                newSprite = pyglet.sprite.Sprite(self.blocks[x][y].get('texture'), x=sx, y=sy, batch=batch, group=Util().group['layer0'])
+                                newSprite = pyglet.sprite.Sprite(self.blocks[x][y].get('texture'), x=sx, y=sy, batch=batch, group=Util().group['layer1'])
                                 newSprite.scale = Const.ZOOM
                                 self.blockSprites[x, y] = newSprite
                     except: # Don't crash if we get to the edge of the world, just don't render anything there
