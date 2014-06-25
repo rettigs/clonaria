@@ -5,6 +5,9 @@ Clonaria is an open source sidescrolling block-based platformer like Terraria (h
 
 Controls
 ========
-Movement: WASD or arrow keys
-Jump: Spacebar
-Zoom: +, -, =
+* Movement: `WASD` or `arrow keys`
+* Jump: `spacebar`
+* Zoom: `+`, `-`
+* Reset zoom: `=`
+* Break blocks: `left click`
+* Place blocks: `right`/`middle click`
