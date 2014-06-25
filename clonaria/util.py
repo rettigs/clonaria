@@ -62,9 +62,21 @@ class Util(Singleton):
 
     @staticmethod
     def getClosestSolidBlockDown(world, (x, y), l=1):
-        while not world.isSolidAt(x, y, l):
+        while world.isSolidAt(x, y, l) is False:
             y -= 1
-        return int(x), int(y)
+        if world.isSolidAt(x, y, l):
+            return int(x), int(y)
+        else:
+            return None
+
+    @staticmethod
+    def getClosestSolidBlockLeft(world, (x, y), l=1):
+        while world.isSolidAt(x, y, l) is False:
+            x -= 1
+        if world.isSolidAt(x, y, l):
+            return int(x), int(y)
+        else:
+            return None
 
     def addDebugStats(self, texts):
         '''Adds new debug stats to the HUD'''
@@ -73,13 +85,33 @@ class Util(Singleton):
             label = pyglet.text.Label(text, font_size=14, color=(228, 228, 0, 255), batch=self.batch, group=self.group['debug'])
             self.debugStats.append((number, label, text))
 
-    def updateDebugStats(self):
-        '''Updates existing debug stats'''
+    def prepareDrawDebugStats(self):
+
+        '''Updates existing debug stats to prepare the for drawing'''
         for (number, label, text) in self.debugStats:
             label.begin_update()
             label.text = eval(text)
             label.y = self.window.height-(number+1)*16
             label.end_update()
+
+    def prepareDrawDebugBlocks(self):
+        '''Prepares block collision debug blocks to be drawn'''
+
+        self.debugBlocks = {}
+        scanPoints = self.player.getHitboxScanPoints()
+        for scanPoint in scanPoints:
+            self.debugBlocks[Util.getClosestSolidBlockDown(self.player.world, scanPoint)] = None
+            self.debugBlocks[Util.getClosestSolidBlockLeft(self.player.world, scanPoint)] = None
+
+        for block in self.debugBlocks.keys():
+            if block is None:
+                del self.debugBlocks[block]
+            else:
+                self.debugBlocks[block] = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16), batch=self.batch, group=self.group['debug'])
+
+        for block, sprite in self.debugBlocks.iteritems():
+            sprite.position = self.blocksToPixels(Util.getClosestSolidBlockDown(self.player.world, block))
+            sprite.scale = Const.ZOOM
 
     def getScreenCenter(self):
         '''Returns the on-screen pixel coordinates to the pixel in the middle of the screen'''

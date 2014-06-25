@@ -7,16 +7,17 @@ from util import Util
 
 class Entity(object):
 
-    def __init__(self, entityModel, world, location):
-        self.entityModel = entityModel
+    def __init__(self, model, world, location):
+        self.model = model
         self.world = world
         self.x, self.y = location
         self.vx, self.vy = 0, 0
         self.aWalk = Const.ACCELERATION_WALK
         self.aGravity = Const.ACCELERATION_GRAVITY
         self.aJump = Const.ACCELERATION_JUMP
-        self.sprite = pyglet.sprite.Sprite(entityModel.get('texture'), batch=Util().batch, group=Util().group['entity'])
+        self.sprite = pyglet.sprite.Sprite(model.get('texture'), batch=Util().batch, group=Util().group['entity'])
         self.againstBlockDown = False
+        self.againstBlockLeft = False
         self.maxJumpTicks = Const.MAX_JUMP_TICKS
         self.curJumpTicks = 0
         self.stillJumping = False
@@ -60,13 +61,21 @@ class Entity(object):
     def applyGravity(self):
         self.vy -= self.aGravity
 
+    def getHitboxScanPoints(self):
+        points = []
+        for point in self.model.get('hitbox').points:
+            points.append(Util.addTuples(point, self.location))
+        return points
+
     def move(self):
         
-        # Handle horizontal movement
+        self.moveDown()
         self.x += self.vx
-        
-        # Handle vertical movement and downward block collision
-        testPlayerLocs = [self.location, Util.addTuples(self.location, (1, 0))]
+
+    def moveDown(self):
+        '''Handle vertical movement and downward block collision'''
+
+        testPlayerLocs = self.getHitboxScanPoints()
         distances = []
         for testPlayerLoc in testPlayerLocs:
             testBlockLoc = Util.getClosestSolidBlockDown(self.world, testPlayerLoc)
