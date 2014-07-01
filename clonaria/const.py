@@ -4,6 +4,7 @@ class Const(object):
     RESOURCE_PATH = "../resources"
     TICKS_PER_SECOND = TPS = 60
     PIXELS_PER_BLOCK = PPB = 16
+    BLOCK_SCALE = 2
     ZOOM = 1
     NUM_LAYERS = 5
     ACCELERATION_WALK = 0.25 / TPS

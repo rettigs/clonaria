@@ -16,6 +16,7 @@ class Entity(object):
         self.aGravity = Const.ACCELERATION_GRAVITY
         self.aJump = Const.ACCELERATION_JUMP
         self.sprite = pyglet.sprite.Sprite(model.get('texture'), batch=Util().batch, group=Util().group['entity'])
+        self.facing = 'r'
         self.againstBlockDown = False
         self.againstBlockLeft = False
         self.maxJumpTicks = Const.MAX_JUMP_TICKS
@@ -39,15 +40,27 @@ class Entity(object):
         self.vx, self.vy = vector
 
     def prepareDraw(self):
+        self.updateSprite()
+        self.sprite.image.anchor_x = self.sprite.image.width / 2
+        self.sprite.image.anchor_y = self.sprite.image.height / 2
         sx, sy = Util().blocksToPixels(self.location)
         self.sprite.position = sx, sy
-        self.sprite.scale = Const.ZOOM
+        self.sprite.scale = Const.ZOOM * Const.BLOCK_SCALE
+
+    def updateSprite(self):
+        if self.againstBlockDown:
+            action = 'base'
+        else:
+            action = 'jump'
+        self.sprite.image = self.model.get('textures')["{}_{}".format(action, self.facing)]
 
     def walkLeft(self):
         self.vx -= self.aWalk
+        self.facing = 'l'
 
     def walkRight(self):
         self.vx += self.aWalk
+        self.facing = 'r'
 
     def jump(self):
         if self.againstBlockDown: # We are starting a new jump

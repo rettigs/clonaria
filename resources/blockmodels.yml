@@ -2,7 +2,7 @@
 type: default
 
 # The hitbox of this entity in form of a list of (x, y) points of a polygon.  Coordinates are in pixels, where (1, 1) refers to the lower left corner pixel of the texture.  The hitbox will be scaled with the texture as needed, so the hitbox should match the texture.
-hitbox: '[(1, 1), (1, 16), (16, 16), (16, 1)]'
+hitbox: '[(0, 0), (0, 7), (0, 7), (7, 0)]'
 
 # Depth is only a default value and can be modified when placing certain blocks. It can be:
 # 0: background (where it is behind entities)
@@ -73,11 +73,11 @@ type: stone
 ---
 type: dirt
 ---
-type: halfdirt
-hitbox: '[(1, 1), (1, 8), (16, 8), (16, 1)]'
+type: platform
+hitbox: '[(0, 0), (0, 1), (7, 1), (7, 0)]'
 ---
 type: cone
-hitbox: '[(1, 1), (8, 16), (9, 16), (16, 1)]'
+hitbox: '[(0, 0), (3, 7), (4, 7), (7, 0)]'
 ---
 type: grass
 ---

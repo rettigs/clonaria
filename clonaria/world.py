@@ -122,10 +122,10 @@ class WorldLayer(object):
                             if (x, y) in self.blockSprites:
                                 oldSprite = self.blockSprites[x, y]
                                 oldSprite.position = sx, sy
-                                oldSprite.scale = Const.ZOOM
+                                oldSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
                             else:
                                 newSprite = pyglet.sprite.Sprite(self.blocks[x][y].get('texture'), x=sx, y=sy, batch=batch, group=Util().group['layer1'])
-                                newSprite.scale = Const.ZOOM
+                                newSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
                                 self.blockSprites[x, y] = newSprite
                     except: # Don't crash if we get to the edge of the world, just don't render anything there
                         pass

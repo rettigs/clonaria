@@ -2,7 +2,7 @@
 type: "default"
 
 # The hitbox of this entity in form of a list of (x, y) points of the polygon.  Coordinates are in pixels, where (0, 0) refers to the lower left corner of the texture.  The hitbox will be scaled with the texture as needed, so make the hitbox match the texture.
-hitbox: '[(0, 0), (15, 0), (15, 15), (0, 15)]'
+hitbox: '[(0, 0), (7, 0), (7, 7), (0, 7)]'
 
 # Indicates the physics model of this entity. It can be:
 #
@@ -34,4 +34,4 @@ light: 0
 defaultmodeltype: default
 ---
 type: player
-hitbox: '[(0, 0), (15, 0), (15, 31), (0, 31)]'
+hitbox: '[(0, 0), (15, 0), (15, 23), (0, 23)]'

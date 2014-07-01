@@ -106,7 +106,7 @@ if __name__ == '__main__':
             world.setBlockAt(*loc)
         if mouse.MIDDLE in buttons:
             loc = Util().pixelsToBlocks(Util().mouseLoc)
-            world.setBlockAt(*loc, blockType=Util().blockModels['halfdirt'])
+            world.setBlockAt(*loc, blockType=Util().blockModels['platform'])
         if mouse.RIGHT in buttons:
             loc = Util().pixelsToBlocks(Util().mouseLoc)
             world.setBlockAt(*loc, blockType=Util().blockModels['cone'])
