@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division
-import getopt, pyglet, sys, time
+import getopt, pyglet, pymunk, sys, time
 from pyglet.window import key, mouse
 
 from const import Const
@@ -22,7 +22,10 @@ if __name__ == '__main__':
         if o == "-d":
             Util().debug += 1
 
-    Util().window = window = pyglet.window.Window(resizable=True)
+    Util().window = window = pyglet.window.Window(caption=Const.GAME_NAME, resizable=True)
+
+    Util().space = pymunk.Space()
+    Util().space.gravity = (0.0, -Const.ACCELERATION_GRAVITY)
 
     Util().world = world = World("world1", (400, 400))
     world.generate()
@@ -43,10 +46,10 @@ if __name__ == '__main__':
 
     if Util().debug:
         debugStats = [  '"FPS: {}".format(pyglet.clock.get_fps())',
-                        '"player.x: {}".format(self.player.x)',
-                        '"player.y: {}".format(self.player.y)',
-                        '"player.vx: {}".format(self.player.vx)',
-                        '"player.vy: {}".format(self.player.vy)',
+                        '"player.body.position.x: {}".format(self.player.body.position.x)',
+                        '"player.body.position.y: {}".format(self.player.body.position.y)',
+                        #'"player.vx: {}".format(self.player.vx)',
+                        #'"player.vy: {}".format(self.player.vy)',
                         '"player.stillJumping: {}".format(self.player.stillJumping)',
                         '"player.againstBlockDown: {}".format(self.player.againstBlockDown)',
                         '"player.againstBlockLeft: {}".format(self.player.againstBlockLeft)']
@@ -77,7 +80,6 @@ if __name__ == '__main__':
         player.prepareDraw()
         if Util().debug:
             Util().prepareDrawDebugStats()
-            Util().prepareDrawDebugBlocks()
             Util().prepareDrawDebugTarget()
 
         batch.draw()
@@ -114,9 +116,7 @@ if __name__ == '__main__':
         if not playerJumping or player.curJumpTicks < 1:
             player.stillJumping = False
 
-        player.applyGravity()
-        #player.applyFriction()
-        player.move()
+        Util().space.step(1 / Const.TPS)
 
-    pyglet.clock.schedule_interval(update, 1/Const.TPS)
+    pyglet.clock.schedule_interval(update, 1 / Const.TPS)
     pyglet.app.run()

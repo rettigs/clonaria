@@ -94,25 +94,6 @@ class Util(Singleton):
             label.y = self.window.height-(number+1)*16
             label.end_update()
 
-    def prepareDrawDebugBlocks(self):
-        '''Prepares block collision debug blocks to be drawn'''
-
-        self.debugBlocks = {}
-        scanPoints = self.player.getHitboxScanPoints()
-        for scanPoint in scanPoints:
-            self.debugBlocks[Util.getClosestSolidBlockDown(self.player.world, scanPoint)] = None
-            self.debugBlocks[Util.getClosestSolidBlockLeft(self.player.world, scanPoint)] = None
-
-        for block in self.debugBlocks.keys():
-            if block is None:
-                del self.debugBlocks[block]
-            else:
-                self.debugBlocks[block] = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16), batch=self.batch, group=self.group['debug'])
-
-        for block, sprite in self.debugBlocks.iteritems():
-            sprite.position = self.blocksToPixels(Util.getClosestSolidBlockDown(self.player.world, block))
-            sprite.scale = Const.ZOOM
-
     def prepareDrawDebugTarget(self):
         '''Prepares the mouse-targeted debug block to be drawn'''
 
@@ -125,13 +106,13 @@ class Util(Singleton):
 
     def blocksToPixels(self, (x, y)):
         '''Returns the on-screen pixel coordinates to the lower left corner pixel of the given block'''
-        return ((x - self.player.x) * Const.PPB * Const.ZOOM + (self.window.width / 2)), (y - self.player.y) * Const.PPB * Const.ZOOM + (self.window.height / 2)
+        return ((x - self.player.body.position.x) * Const.PPB * Const.ZOOM + (self.window.width / 2)), (y - self.player.body.position.y) * Const.PPB * Const.ZOOM + (self.window.height / 2)
 
     def pixelsToBlocks(self, (x, y)):
         '''Returns the world coordinates of the block at the given on-screen pixel coordinates'''
-        return ((int) ((math.floor(x) - (self.window.width / 2)) / Const.PPB / Const.ZOOM + self.player.x), (int) ((math.floor(y) - (self.window.height / 2)) / Const.PPB / Const.ZOOM + self.player.y))
+        return ((int) ((math.floor(x) - (self.window.width / 2)) / Const.PPB / Const.ZOOM + self.player.body.position.x), (int) ((math.floor(y) - (self.window.height / 2)) / Const.PPB / Const.ZOOM + self.player.body.position.y))
 
     def isBlockOnScreen(self, (x, y)):
         blocksOutHor = self.window.width / 2 / Const.ZOOM / Const.PPB + 1
         blocksOutVert = self.window.height / 2 / Const.ZOOM / Const.PPB + 1
-        return x >= int(self.player.x - blocksOutHor) and x < int(self.player.x + blocksOutHor) and y >= int(self.player.y - blocksOutVert) and y < int(self.player.y + blocksOutVert)
+        return x >= int(self.player.body.position.x - blocksOutHor) and x < int(self.player.body.position.x + blocksOutHor) and y >= int(self.player.body.position.y - blocksOutVert) and y < int(self.player.body.position.y + blocksOutVert)

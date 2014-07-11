@@ -112,8 +112,8 @@ class WorldLayer(object):
         blocksOutVert = window.height / 2 / Const.ZOOM / Const.PPB + 1
         batch = Util().batch
 
-        for y in xrange(int(player.y - blocksOutVert), int(player.y + blocksOutVert)):
-            for x in xrange(int(player.x - blocksOutHor), int(player.x + blocksOutHor)):
+        for y in xrange(int(player.body.position.y - blocksOutVert), int(player.body.position.y + blocksOutVert)):
+            for x in xrange(int(player.body.position.x - blocksOutHor), int(player.body.position.x + blocksOutHor)):
                 if x >= 0 and y >= 0:
                     try:
                         block = self.blocks[x][y]
