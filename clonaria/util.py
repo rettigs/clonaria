@@ -1,23 +1,17 @@
 from __future__ import division
-import math, os, pyglet, yaml
-from const import Const
-from model import Model
-from singleton import Singleton
+import math
+import os
 
-class Util(Singleton):
+import pyglet
+import yaml
 
-    def init(self):
-        self.debug = 0
-        self.blockModels = Util.loadModels('block')
-        self.entityModels = Util.loadModels('entity')
-        self.batch = pyglet.graphics.Batch()
-        self.debugStats = []
-        self.group = {}
-        for x in xrange(Const.NUM_LAYERS):
-            self.group['layer{}'.format(x-1)] = pyglet.graphics.OrderedGroup(x-1)
-        self.group['entity'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS)
-        self.group['player'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS+1)
-        self.group['debug'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS+2)
+from block import *
+from const import *
+from model import *
+from state import *
+
+class Util(object):
+    '''Utility class with various helpful functions.'''
 
     @staticmethod
     def loadModels(modeltype):
@@ -61,58 +55,82 @@ class Util(Singleton):
         return tuple(map(sum, zip(a, b)))
 
     @staticmethod
-    def getClosestSolidBlockDown(world, (x, y), l=1):
-        while world.isSolidAt(x, y, l) is False:
-            y -= 1
-        if world.isSolidAt(x, y, l):
-            return int(x), int(y)
+    def getClosestSolidBlock(step, world, loc, l=1):
+        '''Returns the coordinates of the closest solid block in 'world' on layer 'l' at 'loc' in the direction of the unit vector 'step'.'''
+        while world.isSolidAt(loc, l=l) is False:
+            loc = Util.addTuples(loc, step)
+        if world.isSolidAt(loc, l=l):
+            return int(loc[0]), int(loc[1])
         else:
             return None
 
     @staticmethod
-    def getClosestSolidBlockLeft(world, (x, y), l=1):
-        while world.isSolidAt(x, y, l) is False:
-            x -= 1
-        if world.isSolidAt(x, y, l):
-            return int(x), int(y)
-        else:
-            return None
-
-    def addDebugStats(self, texts):
+    def addDebugStats(texts):
         '''Adds new debug stats to the HUD'''
         for text in texts:
-            number = len(self.debugStats)
-            label = pyglet.text.Label(text, font_size=14, color=(228, 228, 0, 255), batch=self.batch, group=self.group['debug'])
-            self.debugStats.append((number, label, text))
+            number = len(State().debugStats)
+            label = pyglet.text.Label(text, font_size=14, color=(228, 228, 0, 255), batch=State().batch, group=State().group['debug'])
+            State().debugStats.append((number, label, text))
 
-    def prepareDrawDebugStats(self):
-
+    @staticmethod
+    def prepareDrawDebugStats():
         '''Updates existing debug stats to prepare the for drawing'''
-        for (number, label, text) in self.debugStats:
+        for (number, label, text) in State().debugStats:
             label.begin_update()
             label.text = eval(text)
-            label.y = self.window.height-(number+1)*16
+            label.y = State().window.height-(number+1)*16
             label.end_update()
 
-    def prepareDrawDebugTarget(self):
+    @staticmethod
+    def prepareDrawDebugTarget():
         '''Prepares the mouse-targeted debug block to be drawn'''
 
-        self.debugTarget.position = self.blocksToPixels(self.pixelsToBlocks(self.mouseLoc))
-        self.debugTarget.scale = Const.ZOOM
+        State().debugTarget.position = Util.blocksToPixels(Util.pixelsToBlocks(State().mouseLoc))
+        State().debugTarget.scale = Const.ZOOM
 
-    def getScreenCenter(self):
+    @staticmethod
+    def getScreenCenter():
         '''Returns the on-screen pixel coordinates to the pixel in the middle of the screen'''
-        return (self.window.width / 2, self.window.height / 2)
+        return (State().window.width / 2, State().window.height / 2)
 
-    def blocksToPixels(self, (x, y)):
+    @staticmethod
+    def blocksToPixels((x, y)):
         '''Returns the on-screen pixel coordinates to the lower left corner pixel of the given block'''
-        return ((x - self.player.body.position.x) * Const.PPB * Const.ZOOM + (self.window.width / 2)), (y - self.player.body.position.y) * Const.PPB * Const.ZOOM + (self.window.height / 2)
+        return ((x - State().player.body.position.x) * Const.PPB * Const.ZOOM + (State().window.width / 2)), (y - State().player.body.position.y) * Const.PPB * Const.ZOOM + (State().window.height / 2)
 
-    def pixelsToBlocks(self, (x, y)):
+    @staticmethod
+    def pixelsToBlocks((x, y)):
         '''Returns the world coordinates of the block at the given on-screen pixel coordinates'''
-        return ((int) ((math.floor(x) - (self.window.width / 2)) / Const.PPB / Const.ZOOM + self.player.body.position.x), (int) ((math.floor(y) - (self.window.height / 2)) / Const.PPB / Const.ZOOM + self.player.body.position.y))
+        return ((int) ((math.floor(x) - (State().window.width / 2)) / Const.PPB / Const.ZOOM + State().player.body.position.x), (int) ((math.floor(y) - (State().window.height / 2)) / Const.PPB / Const.ZOOM + State().player.body.position.y))
 
-    def isBlockOnScreen(self, (x, y)):
-        blocksOutHor = self.window.width / 2 / Const.ZOOM / Const.PPB + 1
-        blocksOutVert = self.window.height / 2 / Const.ZOOM / Const.PPB + 1
-        return x >= int(self.player.body.position.x - blocksOutHor) and x < int(self.player.body.position.x + blocksOutHor) and y >= int(self.player.body.position.y - blocksOutVert) and y < int(self.player.body.position.y + blocksOutVert)
+    @staticmethod
+    def isBlockOnScreen((x, y)):
+        blocksOutHor = State().window.width / 2 / Const.ZOOM / Const.PPB + 1
+        blocksOutVert = State().window.height / 2 / Const.ZOOM / Const.PPB + 1
+        return x >= int(State().player.body.position.x - blocksOutHor) and x < int(State().player.body.position.x + blocksOutHor) and y >= int(State().player.body.position.y - blocksOutVert) and y < int(State().player.body.position.y + blocksOutVert)
+
+    @staticmethod
+    def getPhysicsBlocks(entities):
+        '''Returns a list of block coordinates to be used for physics calculations based on those nearest to entities.'''
+        blocks = []
+        for entity in entities:
+            blocks.append(Util.getClosestSolidBlock((0, -1), entity.world, entity.body.position))
+
+        return blocks
+
+    @staticmethod
+    def updatePhysicsBlocks(coords):
+        '''Update the local cache of blocks to be used for physics calculations given a list of block coordinates to use. BlockPhysics objects are created and deleted as necessary.'''
+
+        # Stop simulating blocks that are no longer relevant.
+        for oldCoords, oldPhysics in State().physicsBlocks.items():
+            if oldCoords in coords:
+                State().space.remove(oldPhysics.shape)
+                del State().physicsBlocks[oldCoords]
+
+        # Create new BlockPhysics objects for blocks that are relevant (if they don't already exist).
+        for newCoords in coords:
+            if newCoords not in State().physicsBlocks:
+                newPhysics = BlockPhysics(State().world.getBlockAt(newCoords), State().world, newCoords)
+                State().space.add(newPhysics.shape)
+                State().physicsBlocks[newCoords] = newPhysics

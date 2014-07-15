@@ -1,6 +1,8 @@
 from __future__ import division
 
 class Const(object):
+    '''Game constants'''
+
     GAME_NAME = "Clonaria"
     RESOURCE_PATH = "../resources"
     TICKS_PER_SECOND = TPS = 60

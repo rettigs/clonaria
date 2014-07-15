@@ -1,15 +1,20 @@
 #!/usr/bin/env python
 
 from __future__ import division
-import getopt, pyglet, pymunk, sys, time
-from pyglet.window import key, mouse
+import getopt
+import sys
+import time
 
-from const import Const
-from entity import Entity
-from model import Model
-from player import Player
-from util import Util
-from world import World
+import pyglet
+from pyglet.window import key, mouse
+import pymunk
+
+from const import *
+from entity import *
+from model import *
+from player import *
+from util import *
+from world import *
 
 if __name__ == '__main__':
     try:
@@ -20,42 +25,45 @@ if __name__ == '__main__':
 
     for o, a in opts:
         if o == "-d":
-            Util().debug += 1
+            State().debug += 1
 
-    Util().window = window = pyglet.window.Window(caption=Const.GAME_NAME, resizable=True)
+    State().window = window = pyglet.window.Window(caption=Const.GAME_NAME, resizable=True)
 
-    Util().space = pymunk.Space()
-    Util().space.gravity = (0.0, -Const.ACCELERATION_GRAVITY)
+    State().blockModels = Util.loadModels('block')
+    State().entityModels = Util.loadModels('entity')
 
-    Util().world = world = World("world1", (400, 400))
+    State().space = pymunk.Space()
+    State().space.gravity = (0.0, -Const.ACCELERATION_GRAVITY)
+
+    State().world = world = World("world1", (400, 400))
     world.generate()
 
-    Util().player = player = Player(Util().entityModels['player'], world, (world.width / 2, world.height / 2 + 5))
+    State().player = player = Player(State().entityModels['player'], world, (world.width / 2, world.height / 2 + 10))
 
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
 
     # Implement mouse state like the keyboard has because pyglet lacks one
     buttons = []
-    Util().mouseLoc = 0, 0
+    State().mouseLoc = 0, 0
 
     # Set window background color
     pyglet.gl.glClearColor(0, 40, 200, 0)
 
-    batch = Util().batch
+    batch = State().batch
 
-    if Util().debug:
+    if State().debug:
         debugStats = [  '"FPS: {}".format(pyglet.clock.get_fps())',
-                        '"player.body.position.x: {}".format(self.player.body.position.x)',
-                        '"player.body.position.y: {}".format(self.player.body.position.y)',
-                        #'"player.vx: {}".format(self.player.vx)',
-                        #'"player.vy: {}".format(self.player.vy)',
-                        '"player.stillJumping: {}".format(self.player.stillJumping)',
-                        '"player.againstBlockDown: {}".format(self.player.againstBlockDown)',
-                        '"player.againstBlockLeft: {}".format(self.player.againstBlockLeft)']
-        Util().addDebugStats(debugStats)
+                        '"player.body.position.x: {}".format(State().player.body.position.x)',
+                        '"player.body.position.y: {}".format(State().player.body.position.y)',
+                        #'"player.vx: {}".format(State().player.vx)',
+                        #'"player.vy: {}".format(State().player.vy)',
+                        '"player.stillJumping: {}".format(State().player.stillJumping)',
+                        '"player.againstBlockDown: {}".format(State().player.againstBlockDown)',
+                        '"player.againstBlockLeft: {}".format(State().player.againstBlockLeft)']
+        Util.addDebugStats(debugStats)
 
-        Util().debugTarget = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,0,0,128)).create_image(16, 16), batch=Util().batch, group=Util().group['debug'])
+        State().debugTarget = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,0,0,128)).create_image(16, 16), batch=State().batch, group=State().group['debug'])
 
     @window.event
     def on_mouse_press(x, y, button, modifiers):
@@ -67,24 +75,26 @@ if __name__ == '__main__':
 
     @window.event
     def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
-        Util().mouseLoc = x, y
+        State().mouseLoc = x, y
 
     @window.event
     def on_mouse_motion(x, y, dx, dy):
-        Util().mouseLoc = x, y
+        State().mouseLoc = x, y
 
     @window.event
     def on_draw():
         window.clear()
         world.prepareDraw()
         player.prepareDraw()
-        if Util().debug:
-            Util().prepareDrawDebugStats()
-            Util().prepareDrawDebugTarget()
+        if State().debug:
+            Util.prepareDrawDebugStats()
+            Util.prepareDrawDebugTarget()
 
         batch.draw()
 
     def update(self):
+        Util.updatePhysicsBlocks(Util.getPhysicsBlocks([player]))
+
         playerJumping = False
 
         # Handle keyboard input
@@ -104,19 +114,19 @@ if __name__ == '__main__':
         
         # Handle mouse input
         if mouse.LEFT in buttons:
-            loc = Util().pixelsToBlocks(Util().mouseLoc)
-            world.setBlockAt(*loc)
+            loc = Util.pixelsToBlocks(State().mouseLoc)
+            world.setBlockAt(State().blockModels['air'], loc)
         if mouse.MIDDLE in buttons:
-            loc = Util().pixelsToBlocks(Util().mouseLoc)
-            world.setBlockAt(*loc, blockType=Util().blockModels['platform'])
+            loc = Util.pixelsToBlocks(State().mouseLoc)
+            world.setBlockAt(State().blockModels['platform'], loc)
         if mouse.RIGHT in buttons:
-            loc = Util().pixelsToBlocks(Util().mouseLoc)
-            world.setBlockAt(*loc, blockType=Util().blockModels['cone'])
+            loc = Util.pixelsToBlocks(State().mouseLoc)
+            world.setBlockAt(State().blockModels['cone'], loc)
 
         if not playerJumping or player.curJumpTicks < 1:
             player.stillJumping = False
 
-        Util().space.step(1 / Const.TPS)
+        State().space.step(1 / Const.TPS)
 
     pyglet.clock.schedule_interval(update, 1 / Const.TPS)
     pyglet.app.run()

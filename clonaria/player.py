@@ -1,13 +1,16 @@
 from __future__ import division
+
 import pyglet
 
-from const import Const
-from entity import Entity
-from util import Util
+from const import *
+from entity import *
+from state import *
+from util import *
 
 class Player(Entity):
+    '''Represents the player in the world.'''
 
     def __init__(self, entityModel, world, location):
         super(Player, self).__init__(entityModel, world, location)
-        sx, sy = Util().getScreenCenter()
-        self.sprite = pyglet.sprite.Sprite(entityModel.get('texture'), batch=Util().batch, group=Util().group['player'], x=sx, y=sy)
+        sx, sy = Util.getScreenCenter()
+        self.sprite = pyglet.sprite.Sprite(entityModel.get('texture'), batch=State().batch, group=State().group['player'], x=sx, y=sy)

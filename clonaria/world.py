@@ -1,77 +1,81 @@
 from __future__ import division
-import pyglet, random
-from const import Const
-from util import Util
+import random
+
+import pyglet
+
+from const import *
+from state import *
+from util import *
 
 class World(object):
+    '''Represents a game world as layers of blocks.'''
 
     def __init__(self, name, size):
         self.name = name
         self.size = self.width, self.height = size
         self.layers = [WorldLayer(self.name, l, (self.width, self.height)) for l in xrange(Const.NUM_LAYERS)]
 
-    def isValidCoords(self, x, y, l=1):
+    def isValidCoords(self, (x, y), l=1):
         return x >= 0 and y >= 0 and x < self.width and y < self.height and l >= 0 and l < Const.NUM_LAYERS
 
-    def getBlockAt(self, x, y, l=1):
-        if self.isValidCoords(x, y, l):
-            return self.layers[l].getBlockAt(x, y)
+    def getBlockAt(self, (x, y), l=1):
+        if self.isValidCoords((x, y), l):
+            return self.layers[l].getBlockAt((x, y))
         else:
             return None
 
-    def setBlockAt(self, x, y, l=1, blockType=Util().blockModels['air']):
+    def setBlockAt(self, blockType, (x, y), l=1):
         x = int(x)
         y = int(y)
-        if self.isValidCoords(x, y, l):
-            self.layers[l].setBlockAt(x, y, blockType)
+        if self.isValidCoords((x, y), l):
+            self.layers[l].setBlockAt(blockType, (x, y))
             return True
         else:
             return None
 
-    def isEmptyAt(self, x, y, l=1):
+    def isEmptyAt(self, (x, y), l=1):
         x = int(x)
         y = int(y)
-        if self.isValidCoords(x, y, l):
-            return self.layers[l].isEmptyAt(x, y)
+        if self.isValidCoords((x, y), l):
+            return self.layers[l].isEmptyAt((x, y))
         else:
             return None
 
-    def isSolidAt(self, x, y, l=1):
+    def isSolidAt(self, (x, y), l=1):
         x = int(x)
         y = int(y)
-        if self.isValidCoords(x, y, l):
-            return self.layers[l].isSolidAt(x, y)
+        if self.isValidCoords((x, y), l):
+            return self.layers[l].isSolidAt((x, y))
         else:
             return None
-
 
     def generate(self):
         w = self.width
         h = self.height
 
-        air = Util().blockModels['air']
+        air = State().blockModels['air']
         for x in xrange(w):
             for y in xrange(h):
-                self.setBlockAt(x, y, 1, air)
+                self.setBlockAt(air, (x, y))
 
-        dirt = Util().blockModels['dirt']
+        dirt = State().blockModels['dirt']
         for x in xrange(w):
             for y in xrange(int(h/2 + random.random() * 5)):
-                self.setBlockAt(x, y, 1, dirt)
+                self.setBlockAt(dirt, (x, y))
 
-        sand = Util().blockModels['sand']
+        sand = State().blockModels['sand']
         for i in xrange(w*h//400):
             blocks = Util.circle(random.random() * w, random.random() * h, random.random() * 20)
             for block in blocks:
-                if not self.isEmptyAt(block[0], block[1], 1):
-                    self.setBlockAt(block[0], block[1], 1, sand)
+                if not self.isEmptyAt(block):
+                    self.setBlockAt(sand, block)
 
-        gravel = Util().blockModels['gravel']
+        gravel = State().blockModels['gravel']
         for i in xrange(w*h//800):
             blocks = Util.circle(random.random() * w, random.random() * h, random.random() * 20)
             for block in blocks:
-                if not self.isEmptyAt(block[0], block[1], 1):
-                    self.setBlockAt(block[0], block[1], 1, gravel)
+                if not self.isEmptyAt(block):
+                    self.setBlockAt(gravel, block)
 
     def prepareDraw(self):
         #for layer in self.layers:
@@ -79,6 +83,7 @@ class World(object):
         self.layers[1].prepareDraw() # TODO: We are currently only using layer 1
 
 class WorldLayer(object):
+    '''Represents one layer of a game world as blocks.'''
 
     def __init__(self, world, layer, size):
         self.world = world
@@ -86,50 +91,46 @@ class WorldLayer(object):
         self.size = self.width, self.height = size
         self.blocks = [[None for x in xrange(self.width)] for y in xrange(self.height)]
         self.blockSprites = {}
-    def isValidCoords(self, x, y):
+    def isValidCoords(self, (x, y)):
         return x >= 0 and y >= 0 and x < self.width and y < self.height
 
-    def getBlockAt(self, x, y):
+    def getBlockAt(self, (x, y)):
         return self.blocks[x][y]
 
-    def setBlockAt(self, x, y, blockType):
+    def setBlockAt(self, blockType, (x, y)):
         self.blocks[x][y] = blockType 
         if (x, y) in self.blockSprites:
             del self.blockSprites[(x, y)]
         return True
 
-    def isEmptyAt(self, x, y):
-        return self.getBlockAt(x, y) == Util().blockModels['air']
+    def isEmptyAt(self, (x, y)):
+        return self.getBlockAt((x, y)) == State().blockModels['air']
 
-    def isSolidAt(self, x, y):
-        return self.getBlockAt(x, y).get('solid')
+    def isSolidAt(self, (x, y)):
+        return self.getBlockAt((x, y)).get('solid')
 
     def prepareDraw(self):
-        pass
-        window = Util().window
-        player = Util().player
+        window = State().window
+        player = State().player
         blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1
         blocksOutVert = window.height / 2 / Const.ZOOM / Const.PPB + 1
-        batch = Util().batch
+        batch = State().batch
 
         for y in xrange(int(player.body.position.y - blocksOutVert), int(player.body.position.y + blocksOutVert)):
             for x in xrange(int(player.body.position.x - blocksOutHor), int(player.body.position.x + blocksOutHor)):
-                if x >= 0 and y >= 0:
-                    try:
-                        block = self.blocks[x][y]
-                        if block.get('type') != 'air':
-                            sx, sy = Util().blocksToPixels((x, y))
-                            if (x, y) in self.blockSprites:
-                                oldSprite = self.blockSprites[x, y]
-                                oldSprite.position = sx, sy
-                                oldSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
-                            else:
-                                newSprite = pyglet.sprite.Sprite(self.blocks[x][y].get('texture'), x=sx, y=sy, batch=batch, group=Util().group['layer1'])
-                                newSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
-                                self.blockSprites[x, y] = newSprite
-                    except: # Don't crash if we get to the edge of the world, just don't render anything there
-                        pass
+                if self.isValidCoords((x, y)):
+                    block = self.blocks[x][y]
+                    if block.get('type') != 'air':
+                        sx, sy = Util.blocksToPixels((x, y))
+                        if (x, y) in self.blockSprites:
+                            oldSprite = self.blockSprites[x, y]
+                            oldSprite.position = sx, sy
+                            oldSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
+                        else:
+                            newSprite = pyglet.sprite.Sprite(self.blocks[x][y].get('texture'), x=sx, y=sy, batch=batch, group=State().group['layer1'])
+                            newSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
+                            self.blockSprites[x, y] = newSprite
 
         for pos in self.blockSprites.keys():
-            if not Util().isBlockOnScreen(pos):
+            if not Util.isBlockOnScreen(pos):
                 del self.blockSprites[pos]

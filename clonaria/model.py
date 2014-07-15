@@ -1,20 +1,22 @@
 from __future__ import division
 import os
+
 import pyglet
 from pyglet.gl import *
-from const import Const
-from polygon import Polygon
+
+from const import *
 
 class Model(object):
+    '''Container for stateless, generic data that is not specific to a particular object, such as a block or entity.'''
 
     def __init__(self, properties):
         self.properties = properties
 
-        # Eval the hitbox string to a list of (x, y) coordinate tuples, then convert to a Polygon
+        # Eval the hitbox string to a list of (x, y) coordinate tuples.
         if 'hitbox' in self.properties:
             hitbox = eval(self.get('hitbox'))
-            hitbox = [(x/Const.PPB, y/Const.PPB) for x, y in hitbox] # Scale the hitbox to the current block proportions
-            self.set('hitbox', Polygon(hitbox))
+            hitbox = [(x/Const.PPB, y/Const.PPB) for x, y in hitbox] # Scale the hitbox to the current block proportions.
+            self.set('hitbox', hitbox)
 
         # Prepare to load the textures.
         texDir = "{}/images/{}".format(Const.RESOURCE_PATH, self.get('modeltype'))
