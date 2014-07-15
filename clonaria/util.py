@@ -134,3 +134,25 @@ class Util(object):
                 newPhysics = BlockPhysics(State().world.getBlockAt(newCoords), State().world, newCoords)
                 State().space.add(newPhysics.shape)
                 State().physicsBlocks[newCoords] = newPhysics
+
+    @staticmethod
+    def prepareDrawDebugPhysicsBlocks():
+        '''Prepares physics block markers to be drawn'''
+        
+        coords = State().physicsBlocks.keys()
+
+        # Stop drawing blocks that are no longer relevant.
+        for oldCoords in State().debugPhysicsBlocks.keys():
+            if oldCoords in coords:
+                del State().debugPhysicsBlocks[oldCoords]
+
+        # Create new Sprite objects for blocks that are relevant (if they don't already exist).
+        for newCoords in coords:
+            if newCoords not in State().debugPhysicsBlocks:
+                newSprite = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16), batch=State().batch, group=State().group['debug'])
+                State().debugPhysicsBlocks[newCoords] = newSprite
+
+        # Update the properties of each Sprite.
+        for coords, sprite in State().debugPhysicsBlocks.iteritems():
+            sprite.position = Util.blocksToPixels(State().physicsBlocks[coords].body.position)
+            sprite.scale = Const.ZOOM

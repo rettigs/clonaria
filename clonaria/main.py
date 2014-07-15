@@ -88,6 +88,7 @@ if __name__ == '__main__':
         player.prepareDraw()
         if State().debug:
             Util.prepareDrawDebugStats()
+            Util.prepareDrawDebugPhysicsBlocks()
             Util.prepareDrawDebugTarget()
 
         batch.draw()
