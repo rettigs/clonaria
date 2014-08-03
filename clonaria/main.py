@@ -50,14 +50,17 @@ if __name__ == '__main__':
     # Set window background color
     pyglet.gl.glClearColor(0, 40, 200, 0)
 
+    # Enable transparency
+    glEnable(GL_BLEND)
+
     batch = State().batch
 
     if State().debug:
         debugStats = [  '"FPS: {}".format(pyglet.clock.get_fps())',
                         '"player.body.position.x: {}".format(State().player.body.position.x)',
                         '"player.body.position.y: {}".format(State().player.body.position.y)',
-                        #'"player.vx: {}".format(State().player.vx)',
-                        #'"player.vy: {}".format(State().player.vy)',
+                        '"player.body.velocity.x: {}".format(State().player.body.velocity.x)',
+                        '"player.body.velocity.y: {}".format(State().player.body.velocity.y)',
                         '"player.stillJumping: {}".format(State().player.stillJumping)',
                         '"player.againstBlockDown: {}".format(State().player.againstBlockDown)',
                         '"player.againstBlockLeft: {}".format(State().player.againstBlockLeft)']
@@ -92,6 +95,9 @@ if __name__ == '__main__':
             Util.prepareDrawDebugTarget()
 
         batch.draw()
+
+        if State().debug:
+            Util.drawDebugPhysicsEntities()
 
     def update(self):
         Util.updatePhysicsBlocks(Util.getPhysicsBlocks([player]))

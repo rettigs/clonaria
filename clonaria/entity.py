@@ -12,13 +12,12 @@ class Entity(object):
     '''Represents an entity in the world, including its graphics and physics models.'''
 
     def __init__(self, model, world, location):
-        mass = 1
-        radius = 1
-        inertia = pymunk.moment_for_circle(mass, 0, radius) # 1
-        body = pymunk.Body(mass, inertia) # 2
-        shape = pymunk.Circle(body, radius) # 4
-        State().space.add(body, shape) # 5
-        self.body = body
+        self.sprite = pyglet.sprite.Sprite(model.get('texture'), batch=State().batch, group=State().group['entity'])
+
+        inertia = pymunk.moment_for_poly(model.get('mass'), model.get('hitbox'), offset=location)
+        self.body = pymunk.Body(model.get('mass'), inertia)
+        self.shape = pymunk.Poly(self.body, model.get('hitbox'), offset=(-self.sprite.image.width / Const.PPB, -self.sprite.image.height / Const.PPB))
+        State().space.add(self.body, self.shape)
 
         self.model = model
         self.world = world
@@ -26,7 +25,6 @@ class Entity(object):
         self.aWalk = Const.ACCELERATION_WALK
         self.aGravity = Const.ACCELERATION_GRAVITY
         self.aJump = Const.ACCELERATION_JUMP
-        self.sprite = pyglet.sprite.Sprite(model.get('texture'), batch=State().batch, group=State().group['entity'])
         self.facing = 'r'
         self.againstBlockDown = False
         self.againstBlockLeft = False
@@ -52,9 +50,11 @@ class Entity(object):
 
     def walkLeft(self):
         self.facing = 'l'
+        self.body.apply_impulse(Const.LEFT)
 
     def walkRight(self):
         self.facing = 'r'
+        self.body.apply_impulse(Const.RIGHT)
 
     def jump(self):
         if self.againstBlockDown: # We are starting a new jump
@@ -64,6 +64,3 @@ class Entity(object):
         elif self.stillJumping and self.curJumpTicks > 0 and self.vy > 0: # We are continuing an old jump
             self.curJumpTicks -= 1
             self.vy += Const.ACCELERATION_JUMP_HOLD * self.maxJumpTicks / (self.maxJumpTicks - self.curJumpTicks)
-
-    def move(self):
-        pass

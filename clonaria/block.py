@@ -12,10 +12,8 @@ class BlockPhysics(object):
     '''Represents the physics model of a block.'''
 
     def __init__(self, model, world, location, layer=1):
-        radius = 1
-        body = pymunk.Body()
-        self.shape = pymunk.Circle(body, radius)
-        self.body = body
+        self.body = pymunk.Body()
+        self.shape = pymunk.Poly(self.body, model.get('hitbox'), offset=location)
 
         self.model = model
         self.world = world

@@ -57,6 +57,7 @@ class Util(object):
     @staticmethod
     def getClosestSolidBlock(step, world, loc, l=1):
         '''Returns the coordinates of the closest solid block in 'world' on layer 'l' at 'loc' in the direction of the unit vector 'step'.'''
+
         while world.isSolidAt(loc, l=l) is False:
             loc = Util.addTuples(loc, step)
         if world.isSolidAt(loc, l=l):
@@ -114,7 +115,9 @@ class Util(object):
         '''Returns a list of block coordinates to be used for physics calculations based on those nearest to entities.'''
         blocks = []
         for entity in entities:
-            blocks.append(Util.getClosestSolidBlock((0, -1), entity.world, entity.body.position))
+            #blocks.append((int(entity.body.position.x), int(entity.body.position.y)))
+            #blocks.append(Util.getClosestSolidBlock(entity.body.velocity.normalized(), entity.world, entity.body.position))
+            blocks.append(Util.getClosestSolidBlock(Const.DOWN, entity.world, entity.body.position))
 
         return blocks
 
@@ -124,13 +127,13 @@ class Util(object):
 
         # Stop simulating blocks that are no longer relevant.
         for oldCoords, oldPhysics in State().physicsBlocks.items():
-            if oldCoords in coords:
+            if oldCoords not in coords:
                 State().space.remove(oldPhysics.shape)
                 del State().physicsBlocks[oldCoords]
 
         # Create new BlockPhysics objects for blocks that are relevant (if they don't already exist).
         for newCoords in coords:
-            if newCoords not in State().physicsBlocks:
+            if newCoords is not None and newCoords not in State().physicsBlocks:
                 newPhysics = BlockPhysics(State().world.getBlockAt(newCoords), State().world, newCoords)
                 State().space.add(newPhysics.shape)
                 State().physicsBlocks[newCoords] = newPhysics
@@ -143,12 +146,12 @@ class Util(object):
 
         # Stop drawing blocks that are no longer relevant.
         for oldCoords in State().debugPhysicsBlocks.keys():
-            if oldCoords in coords:
+            if oldCoords not in coords:
                 del State().debugPhysicsBlocks[oldCoords]
 
         # Create new Sprite objects for blocks that are relevant (if they don't already exist).
         for newCoords in coords:
-            if newCoords not in State().debugPhysicsBlocks:
+            if newCoords is not None and newCoords not in State().debugPhysicsBlocks:
                 newSprite = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16), batch=State().batch, group=State().group['debug'])
                 State().debugPhysicsBlocks[newCoords] = newSprite
 
@@ -156,3 +159,20 @@ class Util(object):
         for coords, sprite in State().debugPhysicsBlocks.iteritems():
             sprite.position = Util.blocksToPixels(State().physicsBlocks[coords].body.position)
             sprite.scale = Const.ZOOM
+
+    @staticmethod
+    def drawDebugPhysicsEntities():
+        '''Draws entity hitboxes for debugging.'''
+        
+        allEntities = [State().player]
+
+        for entity in allEntities:
+            #if Util.isBlockOnScreen(entity.body.position):
+            hitbox = [Util.blocksToPixels((coords.x, coords.y)) for coords in entity.shape.get_vertices()]
+            datalist = Util.createGLDataList(hitbox, (255,0,255,64))
+            pyglet.graphics.draw(len(hitbox), pyglet.gl.GL_POLYGON, *datalist)
+
+    @staticmethod
+    def createGLDataList(points, color):
+        datalist = (('v2f', sum(points, ())), ('c4B', color * len(points)))
+        return datalist
