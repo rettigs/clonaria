@@ -34,10 +34,12 @@ class Model(object):
         # Load any additional textures
         if os.path.isdir(typeTexDir): # If we have a texture folder, load each texture inside it.
             for filename in os.listdir(typeTexDir):
-                try:
-                    textures[filename[:-4]] = self.__noAA(pyglet.image.load(os.path.join(typeTexDir, filename)))
-                except: # Load the default texture if it fails.
-                    textures[filename[:-4]] = self.__noAA(pyglet.image.load(os.path.join(texDir, 'default.png')))
+                if filename.endswith('.png'):
+                    try:
+                        textures[filename[:-4]] = self.__noAA(pyglet.image.load(os.path.join(typeTexDir, filename)))
+                    except: # Load the default texture if it fails.
+                        print "Could not load texture {}".format(os.path.join(typeTexDir, filename))
+                        textures[filename[:-4]] = self.__noAA(pyglet.image.load(os.path.join(texDir, 'default.png')))
 
         # Make horizontally-flipped versions of every texture.
         for name, texture in textures.items():
