@@ -41,11 +41,12 @@ class Model(object):
                         print "Could not load texture {}".format(os.path.join(typeTexDir, filename))
                         textures[filename[:-4]] = self.__noAA(pyglet.image.load(os.path.join(texDir, 'default.png')))
 
-        # Make horizontally-flipped versions of every texture.
-        for name, texture in textures.items():
-            textures[name+'_r'] = texture # Textures start out facing right.
-            textures[name+'_l'] = texture.get_texture().get_transform(flip_x=True)
-            del textures[name]
+        # Make horizontally-flipped versions of every entity texture.
+        if self.get('modeltype') is 'entity':
+            for name, texture in textures.items():
+                textures[name+'_r'] = texture # Textures start out facing right.
+                textures[name+'_l'] = texture.get_texture().get_transform(flip_x=True)
+                del textures[name]
 
         self.set('textures', textures)
 
