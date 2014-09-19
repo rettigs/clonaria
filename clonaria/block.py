@@ -6,14 +6,14 @@ import pyglet
 import pymunk
 
 from const import *
-from line import *
 
 class BlockPhysics(object):
     '''Represents the physics model of a block.'''
 
     def __init__(self, model, world, location, layer=1):
-        self.body = pymunk.Body()
-        self.shape = pymunk.Poly(self.body, model.get('hitbox'))
+        self.body = world.body
+        from util import *
+        self.segments = [pymunk.Segment(self.body, a, b, 0) for (a, b) in Util.polygonPointsToLines(model.get('hitbox'))]
 
         self.model = model
         self.world = world

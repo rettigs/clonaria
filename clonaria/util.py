@@ -177,14 +177,16 @@ class Util(object):
         # Stop simulating blocks that are no longer relevant.
         for oldCoords, oldPhysics in State().physicsBlocks.items():
             if oldCoords not in coords:
-                State().space.remove(oldPhysics.shape)
+                for s in oldPhysics.segments:
+                    State().space.remove(s)
                 del State().physicsBlocks[oldCoords]
 
         # Create new BlockPhysics objects for blocks that are relevant (if they don't already exist).
         for newCoords in coords:
             if newCoords is not None and newCoords not in State().physicsBlocks and State().world.isSolidAt(newCoords):
                 newPhysics = BlockPhysics(State().world.getBlockAt(newCoords), State().world, newCoords)
-                State().space.add(newPhysics.shape)
+                for s in newPhysics.segments:
+                    State().space.add(s)
                 State().physicsBlocks[newCoords] = newPhysics
 
     @staticmethod
@@ -225,3 +227,11 @@ class Util(object):
     def createGLDataList(points, color):
         datalist = (('v2f', sum(points, ())), ('c4B', color * len(points)))
         return datalist
+
+    @staticmethod
+    def polygonPointsToLines(polygon):
+        '''Converts a list of polygon point tuples to a list of polygon line tuples.'''
+        lines = []
+        for i in xrange(len(polygon)):
+            lines.append((polygon[i-1], polygon[i]))
+        return lines
