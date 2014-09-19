@@ -100,7 +100,8 @@ if __name__ == '__main__':
             Util.drawDebugPhysicsEntities()
 
     def update(self):
-        Util.updatePhysicsBlocks(Util.getPhysicsBlocks([player]))
+        State().physicsBlockCoords = Util.getPhysicsBlockCoords([player])
+        Util.updatePhysicsBlocks(State().physicsBlockCoords)
 
         playerJumping = False
 

@@ -60,7 +60,7 @@ class Entity(object):
         if self.againstBlockDown: # We are starting a new jump
             self.stillJumping = True
             self.curJumpTicks = self.maxJumpTicks
-            self.vy += self.aJump
+            self.body.apply_impulse(self.aJump)
         elif self.stillJumping and self.curJumpTicks > 0 and self.vy > 0: # We are continuing an old jump
             self.curJumpTicks -= 1
-            self.vy += Const.ACCELERATION_JUMP_HOLD * self.maxJumpTicks / (self.maxJumpTicks - self.curJumpTicks)
+            self.body.apply_impulse(Const.ACCELERATION_JUMP_HOLD * self.maxJumpTicks / (self.maxJumpTicks - self.curJumpTicks))

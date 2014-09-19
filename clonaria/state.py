@@ -20,6 +20,7 @@ class State(Singleton):
         self.space = None
         self.world = None
         self.player = None
+        self.physicsBlockCoords = {}
         self.physicsBlocks = {}
 
         # Graphics variables

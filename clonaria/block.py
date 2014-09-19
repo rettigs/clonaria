@@ -13,7 +13,7 @@ class BlockPhysics(object):
 
     def __init__(self, model, world, location, layer=1):
         self.body = pymunk.Body()
-        self.shape = pymunk.Poly(self.body, model.get('hitbox'), offset=location)
+        self.shape = pymunk.Poly(self.body, model.get('hitbox'))
 
         self.model = model
         self.world = world

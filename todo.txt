@@ -30,9 +30,5 @@
             - This would also probably be easy to cache.  A possible implementation could involve using only every n (maybe around 8) blocks or so for biome calculations.  Any biome requests for a given point would return the biome of the nearest nth block.  This way, if a player stays in the same spot for a while, the biome is not continuously recalculated, but is instead read from cache.  The cache for each point can periodically expire (such as after 5 minutes).
 
 Current Tasks:
-- entity movement physics (player in particular)
-    - fix 1-block-wide entities not fitting into 1-block-wide holes.
-        - simply make entity hitboxes slightly smaller in the config?  Or artificially shrink them slightly during collision calculations?
-    - decide how to choose raycast start positions on entities.  Perhaps start at all entity hitbox points, plus have a granularity constant that can be tweaked to allow additional rays to be cast between the hitbox points.  For example, a granularity of 1 block could mean that if an entity is 2 blocks high, rays will be cast not just from the top and bottom of the entity, but also from the middle so that the entity doesn't impale itself onto blocks.  If performance is not an issue, granularity could be bumped to 0.5 or even 0.25 to ensure that entities collide properly with small blocks as well (such as half blocks).
-        - to save on computations, don't cast rays from points directly behind others.  For example, if an entity has 3 raycast points along its vertical left side, only cast from the bottom one while calculating downward collision, and don't use any of them for rightward calculations.  Use all 3 for leftward calculations.
-        - collision is another thing that could possibly see benefits from concurrency, particularly since it is somewhat intensive and only reads world state, rather than writing it.
+- collision detection
+    - model all world blocks as shapes that are all part of the same body?  This could improve performance and prevent entities from colliding on the flush edges of flat areas of the world.
