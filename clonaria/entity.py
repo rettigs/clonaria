@@ -57,6 +57,7 @@ class Entity(object):
         self.body.apply_impulse(Const.RIGHT)
 
     def jump(self):
+        self.body.apply_impulse(Const.UP * 10)
         if self.againstBlockDown: # We are starting a new jump
             self.stillJumping = True
             self.curJumpTicks = self.maxJumpTicks
