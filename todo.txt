@@ -32,3 +32,10 @@
 Current Tasks:
 - collision detection
     - model all world blocks as shapes that are all part of the same body?  This could improve performance and prevent entities from colliding on the flush edges of flat areas of the world.
+    - switch from pymunk to pybox2d?
+        - box2d appears to handle connecting vertices better (with chains) to prevent minor collisions while sliding along flush line segment intersections.
+        - box2d also has "bullet" object types to prevent fast objects from passing through thin walls.
+        - box2d appears to have nice damping and personal gravity features.
+        - box2d has debug shape drawing tools.
+        - however, box2d also has c++ dependencies, rather than pure python.
+            - does this mean it will be faster, though?
