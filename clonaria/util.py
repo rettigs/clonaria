@@ -216,7 +216,7 @@ class Util(object):
 
         for entity in allEntities:
             #if Util.isBlockOnScreen(entity.body.position):
-            hitbox = [Util.blocksToPixels(coords) for coords in entity.shape.vertices]
+            hitbox = [Util.blocksToPixels(Util.addTuples(entity.body.position, coords)) for coords in entity.shape.vertices]
             datalist = Util.createGLDataList(hitbox, (255,0,255,64))
             pyglet.graphics.draw(len(hitbox), pyglet.gl.GL_POLYGON, *datalist)
 

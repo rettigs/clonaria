@@ -13,9 +13,10 @@ class Entity(object):
 
     def __init__(self, model, world, location):
         self.sprite = pyglet.sprite.Sprite(model.get('texture'), batch=State().batch, group=State().group['entity'])
+        self.offset = (-self.sprite.image.width / Const.PPB, -self.sprite.image.height / Const.PPB)
 
         self.body = State().space.CreateDynamicBody(position=location, fixedRotation=True)
-        self.shape = b2PolygonShape(vertices=model.get('hitbox'))
+        self.shape = b2PolygonShape(vertices=[Util.addTuples(p, self.offset) for p in model.get('hitbox')])
         self.fixture = self.body.CreatePolygonFixture(shape=self.shape, density=1, friction=0.3)
 
         self.model = model
