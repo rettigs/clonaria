@@ -7,7 +7,7 @@ import time
 
 import pyglet
 from pyglet.window import key, mouse
-import pymunk
+from Box2D import *
 
 from const import *
 from entity import *
@@ -32,8 +32,7 @@ if __name__ == '__main__':
     State().blockModels = Util.loadModels('block')
     State().entityModels = Util.loadModels('entity')
 
-    State().space = pymunk.Space()
-    State().space.gravity = (0.0, -Const.ACCELERATION_GRAVITY)
+    State().space = b2World(gravity=(0.0, -Const.ACCELERATION_GRAVITY), doSleep=True)
 
     State().world = world = World("world1", (400, 400))
     world.generate()
@@ -59,8 +58,8 @@ if __name__ == '__main__':
         debugStats = [  '"FPS: {}".format(pyglet.clock.get_fps())',
                         '"player.body.position.x: {}".format(State().player.body.position.x)',
                         '"player.body.position.y: {}".format(State().player.body.position.y)',
-                        '"player.body.velocity.x: {}".format(State().player.body.velocity.x)',
-                        '"player.body.velocity.y: {}".format(State().player.body.velocity.y)',
+                        '"player.body.linearVelocity.x: {}".format(State().player.body.linearVelocity.x)',
+                        '"player.body.linearVelocity.y: {}".format(State().player.body.linearVelocity.y)',
                         '"player.stillJumping: {}".format(State().player.stillJumping)',
                         '"player.againstBlockDown: {}".format(State().player.againstBlockDown)',
                         '"player.againstBlockLeft: {}".format(State().player.againstBlockLeft)']
@@ -134,7 +133,16 @@ if __name__ == '__main__':
         if not playerJumping or player.curJumpTicks < 1:
             player.stillJumping = False
 
-        State().space.step(1 / Const.TPS)
+        timeStep = (1 / Const.TPS)
+        vel_iters, pos_iters = 6, 2
+        
+        # Instruct the world to perform a single step of simulation. It is
+        # generally best to keep the time step and iterations fixed.
+        State().space.Step(timeStep, vel_iters, pos_iters)
+
+        # Clear applied body forces. We didn't apply any forces, but you
+        # should know about this function.
+        State().space.ClearForces() #TODO: Figure out if this line is useful or necessary.
 
     pyglet.clock.schedule_interval(update, 1 / Const.TPS)
     pyglet.app.run()

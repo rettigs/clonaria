@@ -2,7 +2,7 @@ from __future__ import division
 import random
 
 import pyglet
-import pymunk
+from Box2D import *
 
 from const import *
 from state import *
@@ -15,7 +15,6 @@ class World(object):
         self.name = name
         self.size = self.width, self.height = size
         self.layers = [WorldLayer(self.name, l, (self.width, self.height)) for l in xrange(Const.NUM_LAYERS)]
-        self.body = pymunk.Body()
 
     def isValidCoords(self, (x, y), l=1):
         return x >= 0 and y >= 0 and x < self.width and y < self.height and l >= 0 and l < Const.NUM_LAYERS

@@ -3,7 +3,7 @@ import copy
 import math
 
 import pyglet
-import pymunk
+from Box2D import *
 
 from const import *
 from util import *
@@ -14,14 +14,12 @@ class Entity(object):
     def __init__(self, model, world, location):
         self.sprite = pyglet.sprite.Sprite(model.get('texture'), batch=State().batch, group=State().group['entity'])
 
-        inertia = pymunk.moment_for_poly(model.get('mass'), model.get('hitbox'), offset=location)
-        self.body = pymunk.Body(model.get('mass'), inertia)
-        self.shape = pymunk.Poly(self.body, model.get('hitbox'), offset=(-self.sprite.image.width / Const.PPB, -self.sprite.image.height / Const.PPB))
-        State().space.add(self.body, self.shape)
+        self.body = State().space.CreateDynamicBody(position=location, fixedRotation=True)
+        self.shape = b2PolygonShape(vertices=model.get('hitbox'))
+        self.fixture = self.body.CreatePolygonFixture(shape=self.shape, density=1, friction=0.3)
 
         self.model = model
         self.world = world
-        self.body.position = location
         self.aWalk = Const.ACCELERATION_WALK
         self.aGravity = Const.ACCELERATION_GRAVITY
         self.aJump = Const.ACCELERATION_JUMP
@@ -50,14 +48,14 @@ class Entity(object):
 
     def walkLeft(self):
         self.facing = 'l'
-        self.body.apply_impulse(Const.LEFT)
+        self.body.ApplyLinearImpulse(impulse=Const.LEFT, point=self.body.worldCenter, wake=True)
 
     def walkRight(self):
         self.facing = 'r'
-        self.body.apply_impulse(Const.RIGHT)
+        self.body.ApplyLinearImpulse(impulse=Const.RIGHT, point=self.body.worldCenter, wake=True)
 
     def jump(self):
-        self.body.apply_impulse(Const.UP * 10)
+        self.body.ApplyLinearImpulse(impulse=tuple(x*5 for x in Const.UP), point=self.body.worldCenter, wake=True)
         if self.againstBlockDown: # We are starting a new jump
             self.stillJumping = True
             self.curJumpTicks = self.maxJumpTicks
