@@ -1,5 +1,5 @@
+Box2D==2.3b0
 PyYAML==3.11
 argparse==1.2.1
 pyglet==1.1.4
-pymunk==4.0.0
 wsgiref==0.1.2
