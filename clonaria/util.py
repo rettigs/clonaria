@@ -105,10 +105,10 @@ class Util(object):
 
     @staticmethod
     def getNearbySolidBlocks(entity):
-        bb = entity.shape.bb
+        bb = entity.shape.getAABB(entity.body.transform, 0)
         blocks = []
-        for x in xrange(int(bb.left - 1), int(bb.right + 2)):
-            for y in xrange(int(bb.bottom - 1), int(bb.top + 2)):
+        for x in xrange(int(bb.lowerBound[0] - 1), int(bb.upperBound[0] + 2)):
+            for y in xrange(int(bb.lowerBound[1] - 1), int(bb.upperBound[1] + 2)):
                 if entity.world.isSolidAt((x, y)):
                     blocks.append(Util.int_tuple((x, y)))
         return blocks
@@ -177,16 +177,13 @@ class Util(object):
         # Stop simulating blocks that are no longer relevant.
         for oldCoords, oldPhysics in State().physicsBlocks.items():
             if oldCoords not in coords:
-                for s in oldPhysics.segments:
-                    State().space.remove(s)
+                State().space.DestroyBody(oldPhysics.body)
                 del State().physicsBlocks[oldCoords]
 
         # Create new BlockPhysics objects for blocks that are relevant (if they don't already exist).
         for newCoords in coords:
             if newCoords is not None and newCoords not in State().physicsBlocks and State().world.isSolidAt(newCoords):
                 newPhysics = BlockPhysics(State().world.getBlockAt(newCoords), State().world, newCoords)
-                for s in newPhysics.segments:
-                    State().space.add(s)
                 State().physicsBlocks[newCoords] = newPhysics
 
     @staticmethod
@@ -219,7 +216,7 @@ class Util(object):
 
         for entity in allEntities:
             #if Util.isBlockOnScreen(entity.body.position):
-            hitbox = [Util.blocksToPixels((coords.x, coords.y)) for coords in entity.shape.get_vertices()]
+            hitbox = [Util.blocksToPixels(coords) for coords in entity.shape.vertices]
             datalist = Util.createGLDataList(hitbox, (255,0,255,64))
             pyglet.graphics.draw(len(hitbox), pyglet.gl.GL_POLYGON, *datalist)
 
