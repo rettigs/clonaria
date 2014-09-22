@@ -62,3 +62,23 @@
     - Floating Island Tool: on use, generates a temporary cloud at the target location that can be walked on.  Care must be used to not run out of mana and fall out of the sky.
 - 3 main world layers: background, midground, and foreground.  Players travel in the midground.  Blocks in the foreground obscure the midground and background until the player is behind the foreground.  For example, a cave or house may be covered with foreground blocks, making it appear solid from the outside.  Upon entering, however, they can then see behind the foreground blocks (possibly within the contiguous area, so you can't see inside other houses just because you're inside one of them, for example).
     - There are also layers for wires and actuators that are only visible when relevant.
+General item ideas:
+    - Magnet gun: similar to the grappling hook, it pulls players toward the chosen block, but it goes much more slowly and can be turned off before reaching the block.  It is only pulling while the button is held down.  It can be used to "swing" along a ceiling.  This item would likely have to be midgame/endgame at least due to its huge utility.
+        - Possibly make it simply pull physics bodies toward each other, so that it can not only pull players toward monsters, but it can also pull monsters and players toward each other (based on their relative masses, which should be easy to do with the physics engine).
+        - Possibly allow repelling as well, so it can be used to slow a descent when aimed at the ground or even "bounce" along it.  Can also be used to repel players and monsters from each other.
+        - The 2 above features might be upgrades or separate items that can be combined into a single item later.
+
+Movement item progression:
+    - Early game:
+        - Double jump: Red Balloon
+        - Increased jump height: Cloud in a Bottle
+        - Faster running: Hermes' Boots
+        - Walking up 1-block inclines: Giant's Boots
+        - Reduced fall damage: Spring Boots
+        - Grappling Hook
+    - Midgame:
+        - No fall damage
+        - Better Grappling Hook / weak Magnet Gun (slow, uses lots of charge, maybe only can push or pull but not both yet)
+    - Endgame:
+        - Better Magnet Gun
+        - Flying: Wings / Jetpack
