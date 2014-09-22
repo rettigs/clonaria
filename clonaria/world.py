@@ -50,7 +50,7 @@ class World(object):
         else:
             return None
 
-    def generate(self):
+    def generate(self, worldType='NORMAL'):
         w = self.width
         h = self.height
 
@@ -60,23 +60,30 @@ class World(object):
                 self.setBlockAt(air, (x, y))
 
         dirt = State().blockModels['dirt']
-        for x in xrange(w):
-            for y in xrange(int(h/2 + random.random() * 5)):
-                self.setBlockAt(dirt, (x, y))
 
-        sand = State().blockModels['sand']
-        for i in xrange(w*h//400):
-            blocks = Util.circle(random.random() * w, random.random() * h, random.random() * 20)
-            for block in blocks:
-                if not self.isEmptyAt(block):
-                    self.setBlockAt(sand, block)
+        if worldType == 'FLAT':
+            for x in xrange(w):
+                for y in xrange(int(h/2)):
+                    self.setBlockAt(dirt, (x, y))
 
-        gravel = State().blockModels['gravel']
-        for i in xrange(w*h//800):
-            blocks = Util.circle(random.random() * w, random.random() * h, random.random() * 20)
-            for block in blocks:
-                if not self.isEmptyAt(block):
-                    self.setBlockAt(gravel, block)
+        elif worldType is 'NORMAL':
+            for x in xrange(w):
+                for y in xrange(int(h/2 + random.random() * 5)):
+                    self.setBlockAt(dirt, (x, y))
+
+            sand = State().blockModels['sand']
+            for i in xrange(w*h//400):
+                blocks = Util.circle(random.random() * w, random.random() * h, random.random() * 20)
+                for block in blocks:
+                    if not self.isEmptyAt(block):
+                        self.setBlockAt(sand, block)
+
+            gravel = State().blockModels['gravel']
+            for i in xrange(w*h//800):
+                blocks = Util.circle(random.random() * w, random.random() * h, random.random() * 20)
+                for block in blocks:
+                    if not self.isEmptyAt(block):
+                        self.setBlockAt(gravel, block)
 
     def prepareDraw(self):
         #for layer in self.layers:
