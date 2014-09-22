@@ -132,17 +132,14 @@ if __name__ == '__main__':
 
         if not playerJumping or player.curJumpTicks < 1:
             player.stillJumping = False
-
-        timeStep = (1 / Const.TPS)
-        vel_iters, pos_iters = 6, 2
         
         # Instruct the world to perform a single step of simulation. It is
         # generally best to keep the time step and iterations fixed.
-        State().space.Step(timeStep, vel_iters, pos_iters)
+        State().space.Step(Const.TIME_STEP, Const.VEL_ITERS, Const.POS_ITERS)
 
         # Clear applied body forces. We didn't apply any forces, but you
         # should know about this function.
         State().space.ClearForces() #TODO: Figure out if this line is useful or necessary.
 
-    pyglet.clock.schedule_interval(update, 1 / Const.TPS)
+    pyglet.clock.schedule_interval(update, Const.TIME_STEP)
     pyglet.app.run()

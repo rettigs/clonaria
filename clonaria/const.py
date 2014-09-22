@@ -6,6 +6,9 @@ class Const(object):
     GAME_NAME = "Clonaria"
     RESOURCE_PATH = "../resources"
     TICKS_PER_SECOND = TPS = 60
+    TIME_STEP = 1 / TPS
+    VEL_ITERS = 6 # Box2D stuff
+    POS_ITERS = 2 # Box2D stuff
     PIXELS_PER_BLOCK = PPB = 16
     BLOCK_SCALE = 2
     ZOOM = 1
