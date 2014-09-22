@@ -25,3 +25,6 @@ class Const(object):
     DOWN    = (0, -1)
     RIGHT   = (1, 0)
     LEFT    = (-1, 0)
+
+    # World types
+    WORLD_TYPES = ['NORMAL', 'FLAT']

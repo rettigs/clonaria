@@ -14,6 +14,17 @@ class Util(object):
     '''Utility class with various helpful functions.'''
 
     @staticmethod
+    def showHelp():
+        '''Prints command line usage help.'''
+        helpLines = [
+            ("-h, --help", "Shows this help."),
+            ("-d", "Displays debug information in-game."),
+            ("--worldtype TYPE", "Choose a world type to generate.  Options: {}".format(Const.WORLD_TYPES))
+        ]
+        for line in helpLines:
+            print "{:<16}\t{}".format(*line)
+
+    @staticmethod
     def loadModels(modeltype):
         '''Loads flyweight models from yaml files given the model type'''
         models = {}

@@ -18,7 +18,7 @@ from world import *
 
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "d")
+        opts, args = getopt.getopt(sys.argv[1:], "dh", ["help", "worldtype="])
     except getopt.GetoptError as err:
         print str(err)
         sys.exit(2)
@@ -26,6 +26,11 @@ if __name__ == '__main__':
     for o, a in opts:
         if o == "-d":
             State().debug += 1
+        elif o == "-h" or o == "--help":
+            Util.showHelp()
+            exit()
+        elif o == "--worldtype":
+            State().worldType = a
 
     State().window = window = pyglet.window.Window(caption=Const.GAME_NAME, resizable=True)
 
