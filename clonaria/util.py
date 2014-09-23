@@ -196,6 +196,13 @@ class Util(object):
             if newCoords is not None and newCoords not in State().physicsBlocks and State().world.isSolidAt(newCoords):
                 newPhysics = BlockPhysics(State().world.getBlockAt(newCoords), State().world, newCoords)
                 State().physicsBlocks[newCoords] = newPhysics
+    
+    @staticmethod
+    def getPhysicsChains(entities):
+        chains = []
+        for entity in entities:
+            chain = Chain(Util.getClosestSolidBlock(entity.body.velocity.normalized(), entity.world, entity.body.position))
+            chains.append(chain)
 
     @staticmethod
     def prepareDrawDebugPhysicsBlocks():

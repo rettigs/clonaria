@@ -34,6 +34,21 @@ class World(object):
         else:
             return None
 
+    def getAdjacentBlocks(self, (x, y), l=1, multiLayer=False):
+        '''Returns all blocks directly adjacent to the block at the given coords.  If multiLayer is enabled, will also return the blocks behind and in front.'''
+        blocks = []
+
+        checkCoords = (x+1,y,l),(x-1,y,l),(x,y+1,l),(x,y-1,l)
+        if multiLayer:
+            checkCoords.extend([(x,y,l+1),(x,y,l-1)])
+
+        for coords in checkCoords
+            block = self.getBlockAt(coords, l=l)
+            if block not None:
+                blocks.append(block)
+
+        return blocks
+
     def isEmptyAt(self, (x, y), l=1):
         x = int(x)
         y = int(y)

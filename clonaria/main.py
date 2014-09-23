@@ -107,6 +107,9 @@ if __name__ == '__main__':
         State().physicsBlockCoords = Util.getPhysicsBlockCoords([player])
         Util.updatePhysicsBlocks(State().physicsBlockCoords)
 
+        State().physicsChains = Util.getPhysicsChains([player])
+        Util.updatePhysicsChains(State().physicsChains)
+
         playerJumping = False
 
         # Handle keyboard input
