@@ -42,9 +42,9 @@ class World(object):
         if multiLayer:
             checkCoords.extend([(x,y,l+1),(x,y,l-1)])
 
-        for coords in checkCoords
+        for coords in checkCoords:
             block = self.getBlockAt(coords, l=l)
-            if block not None:
+            if block is not None:
                 blocks.append(block)
 
         return blocks

@@ -104,11 +104,9 @@ if __name__ == '__main__':
             Util.drawDebugPhysicsEntities()
 
     def update(self):
-        State().physicsBlockCoords = Util.getPhysicsBlockCoords([player])
-        Util.updatePhysicsBlocks(State().physicsBlockCoords)
-
-        State().physicsChains = Util.getPhysicsChains([player])
-        Util.updatePhysicsChains(State().physicsChains)
+        State().physics_blockCoords = Util.physics_getBlockCoords([player])
+        State().physics_edgeCoords = Util.physics_getEdgeCoords([player])
+        Util.physics_updateEdgePhysics(State().physics_edgeCoords)
 
         playerJumping = False
 

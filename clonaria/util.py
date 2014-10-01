@@ -1,11 +1,12 @@
 from __future__ import division
 import math
+import operator
 import os
 
 import pyglet
 import yaml
 
-from block import *
+from edge import *
 from const import *
 from model import *
 from state import *
@@ -62,8 +63,12 @@ class Util(object):
          return math.sqrt((bx-ax)**2 + (by-ay)**2)
 
     @staticmethod
-    def addTuples(a, b):
-        return tuple(map(sum, zip(a, b)))
+    def add_tuple(a, b):
+        return tuple(map(operator.add, a, b))
+
+    @staticmethod
+    def sub_tuple(a, b):
+        return tuple(map(operator.sub, a, b))
 
     @staticmethod
     def int_tuple(a):
@@ -77,24 +82,21 @@ class Util(object):
 
         # Special case: Direction is zero. Return current block.
         if dx == 0 and dy == 0:
-            print 'a'
             if world.isSolidAt(loc, l=l):
                 blocks.append(Util.int_tuple(loc))
 
         # Special case: Direction is vertical or horizontal. Add direction vector to location until solid block is found.
         elif dx == 0 or dy == 0:
-            print 'b'
             newloc = loc
             while True:
                 blocks.append(Util.int_tuple(newloc))
                 if world.isSolidAt(newloc, l=l) is not False: break # Stop once we hit a solid block or the edge of the world.
                 if maxblocks is not None and len(blocks) >= maxblocks: break # Stop once we hit the maxblocks limit.
                 if maxdistance is not None and Util.distancePoint(loc, newloc) >= maxdistance: break # Stop once we hit the maxdistance limit.
-                newloc = Util.addTuples(newloc, (dx, dy))
+                newloc = Util.add_tuple(newloc, (dx, dy))
 
         # Otherwise, use Bresenham's line algorithm.
         else:
-            print 'c'
             slope = dy / dx
             x, y = loc
             while True:
@@ -171,7 +173,7 @@ class Util(object):
         return x >= int(State().player.body.position.x - blocksOutHor) and x < int(State().player.body.position.x + blocksOutHor) and y >= int(State().player.body.position.y - blocksOutVert) and y < int(State().player.body.position.y + blocksOutVert)
 
     @staticmethod
-    def getPhysicsBlockCoords(entities):
+    def physics_getBlockCoords(entities):
         '''Returns a list of block coordinates to be used for physics calculations based on those nearest to entities.'''
         blocks = []
         for entity in entities:
@@ -182,33 +184,37 @@ class Util(object):
         return blocks
 
     @staticmethod
-    def updatePhysicsBlocks(coords):
-        '''Update the local cache of blocks to be used for physics calculations given a list of block coordinates to use. BlockPhysics objects are created and deleted as necessary.'''
+    def physics_getEdgeCoords(entities):
+        '''Returns a list of edge coords in (vertices, location) format for blocks near the given entities, one for each line segment of each block's hitbox.  The 'vertices' variable is a tuple of vertices.'''
+        coords = Util.physics_getBlockCoords(entities)
+        edges = []
+        for coord in coords:
+            points = State().world.getBlockAt(coord).get('hitbox')
+            lines = Util.polygonPointsToLines(points)
+            for line in lines:
+                edges.append((line, coord))
+        return edges
 
-        # Stop simulating blocks that are no longer relevant.
-        for oldCoords, oldPhysics in State().physicsBlocks.items():
-            if oldCoords not in coords:
-                State().space.DestroyBody(oldPhysics.body)
-                del State().physicsBlocks[oldCoords]
-
-        # Create new BlockPhysics objects for blocks that are relevant (if they don't already exist).
-        for newCoords in coords:
-            if newCoords is not None and newCoords not in State().physicsBlocks and State().world.isSolidAt(newCoords):
-                newPhysics = BlockPhysics(State().world.getBlockAt(newCoords), State().world, newCoords)
-                State().physicsBlocks[newCoords] = newPhysics
-    
     @staticmethod
-    def getPhysicsChains(entities):
-        chains = []
-        for entity in entities:
-            chain = Chain(Util.getClosestSolidBlock(entity.body.velocity.normalized(), entity.world, entity.body.position))
-            chains.append(chain)
+    def physics_updateEdgePhysics(newEdgeCoords):
+        '''Updates the cache of edges to be used for physics calculations given a list of edges in (vertices, location) format to use.  EdgePhysics objects are created and deleted as necessary.'''
+
+        # Stop simulating edges that are no longer relevant.
+        for oldEdgeCoord, oldEdgePhysics in State().physics_edgePhysics.items():
+            if oldEdgeCoord not in newEdgeCoords:
+                State().space.DestroyBody(oldEdgePhysics.body)
+                del State().physics_edgePhysics[oldEdgeCoord]
+
+        # Create new EdgePhysics objects for edges that are relevant (if they don't already exist).
+        for newEdgeCoord in newEdgeCoords:
+            if newEdgeCoord not in State().physics_edgePhysics:
+                State().physics_edgePhysics[newEdgeCoord] = EdgePhysics(list(newEdgeCoord[0]), newEdgeCoord[1])
 
     @staticmethod
     def prepareDrawDebugPhysicsBlocks():
         '''Prepares physics block markers to be drawn'''
         
-        coords = State().physicsBlockCoords
+        coords = State().physics_blockCoords
 
         # Stop drawing blocks that are no longer relevant.
         for oldCoords in State().debugPhysicsBlocks.keys():
@@ -234,7 +240,7 @@ class Util(object):
 
         for entity in allEntities:
             #if Util.isBlockOnScreen(entity.body.position):
-            hitbox = [Util.blocksToPixels(Util.addTuples(entity.body.position, coords)) for coords in entity.shape.vertices]
+            hitbox = [Util.blocksToPixels(Util.add_tuple(entity.body.position, coords)) for coords in entity.shape.vertices]
             datalist = Util.createGLDataList(hitbox, (255,0,255,64))
             pyglet.graphics.draw(len(hitbox), pyglet.gl.GL_POLYGON, *datalist)
 

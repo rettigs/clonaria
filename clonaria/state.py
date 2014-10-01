@@ -21,8 +21,9 @@ class State(Singleton):
         self.world = None
         self.worldType = 'NORMAL'
         self.player = None
-        self.physicsBlockCoords = {}
-        self.physicsBlocks = {}
+        self.physics_blockCoords = []
+        self.physics_edgeCoords = []
+        self.physics_edgePhysics = {}
 
         # Graphics variables
         self.blockModels = None
