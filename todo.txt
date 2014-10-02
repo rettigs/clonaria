@@ -14,11 +14,9 @@
 - Double buffer all AI/entire world?  This will require lots of resources and/or refactoring, so only do it if I encounter or think of major problems.
 - process entity AI/liquids concurrently?  This should be easier to do if we double buffer them, and may be important if they're intensive and/or numerous.
 - Use command classes to make AI simpler (they move the same way a player does, just with artificially generated commands instead of keyboard-generated ones): http://gameprogrammingpatterns.com/command.html
-- Quatrie for sparse world layer implementation?  Maybe Numpy?
 - Better world generation
     - Implement terrain by randomizing height of middle and edges, then recursively between each point whilst stepping down the range until single-block granularity is reached.
     - Implement caves/tunnels by spawning random lines of random length that recursively eat away blocks according to a random TTL so we get tunnels of variable width.  Each tunnel may also spawn additional tunnels either from the ends (more common) or random points in the middle (less common).  Constants dictating the ranges of these random numbers can be customized for certain biomes upon world generation.
-- Use math to make acceleration consistent with variable timesteps (so slow computers can play normally, just choppier)
 - Use event-based paradigms?  This requires more research to know if this would be good for a game.
 - Implement biomes (effects won't be visible until I also implement music, background scenery, and mobs).
     - A single area can be in multiple biomes at once if there are enough biome-specific blocks of each type nearby.
@@ -28,10 +26,22 @@
         - If calculating these biomes is too computationally intensive:
             - This would probably be easy to calculate in a second core (as it only reads world state rather than modifying it).  Even if the value of a block is changed during calculation, the worst that would happen is a slight biome miscalculation, which would be barely noticeable in most cases and would be soon fixed anyway by a later recalculation.
             - This would also probably be easy to cache.  A possible implementation could involve using only every n (maybe around 8) blocks or so for biome calculations.  Any biome requests for a given point would return the biome of the nearest nth block.  This way, if a player stays in the same spot for a while, the biome is not continuously recalculated, but is instead read from cache.  The cache for each point can periodically expire (such as after 5 minutes).
+- Implement walking up single-block inclines
+- Draw hitboxes/edges/collision bodies for debugging
+- Fix textures not lining up with collision bodies
+- Implement block placement rules (e.g. dirt can only be placed next to another block, torches can only be placed on walls and floors but not ceilings, etc.)
+- Add lighting engine
+- Figure out friction/air resistance system.
+    - Blocks and entities can easily have friction applied in settings, but good defaults need to be set.
+    - Box2D might have an air resistance system built-in.  Research required.
+    - Figure out a way to have max speeds for entities.
 
 Current Tasks:
-- collision detection
-    - use box2d's debugdraw functionality to draw hitboxes/collision bodies
-    - fix texture not lining up with collision bodies
-    - fix snagging on flush block connections by using box2d's chains.  Implement algorithm to automatically create and update chains along the surface of the world.
-        - Implement walking up single-block inclines by modifying chain algorithm to have diagonal lines?
+    - Separate the world into chunks.  64x64 blocks, perhaps?
+        - Read http://0fps.net/2012/01/14/an-analysis-of-minecraft-like-engines/
+        - Only load chunks that are in use by the player or other entities, or are being modified for some reason.
+        - How to generate the world if the whole thing is too big to be loaded at once?  Perhaps generate chunks as you first encounter them, like in Minecraft.
+            - How do I do this?
+                - Perhaps write a single-block generator function that, given a seed and location, will return the block that is supposed to be generated there.  Generate the world by using this function iterated over whatever area is necessary.
+        - Generate world with a seed, and have deterministic generation.  Perhaps the possibility of infinite worlds?
+        - Requires more research!
