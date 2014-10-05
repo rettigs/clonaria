@@ -71,6 +71,14 @@ class Util(object):
         return tuple(map(operator.sub, a, b))
 
     @staticmethod
+    def mul_tuple(a, b):
+        return tuple(map(operator.mul, a, b))
+
+    @staticmethod
+    def div_tuple(a, b):
+        return tuple(map(operator.div, a, b))
+
+    @staticmethod
     def int_tuple(a):
         return tuple(map(int, a))
 
@@ -171,6 +179,16 @@ class Util(object):
         blocksOutHor = State().window.width / 2 / Const.ZOOM / Const.PPB + 1
         blocksOutVert = State().window.height / 2 / Const.ZOOM / Const.PPB + 1
         return x >= int(State().player.body.position.x - blocksOutHor) and x < int(State().player.body.position.x + blocksOutHor) and y >= int(State().player.body.position.y - blocksOutVert) and y < int(State().player.body.position.y + blocksOutVert)
+
+    @staticmethod
+    def getChunkAt((x, y)):
+        '''Returns the coordinates of the chunk containing the block at the given coords.  Does not guarantee that the chunk exists, just that that block would mathematically be there.'''
+        return (x//Const.CHUNK_SIZE, y//Const.CHUNK_SIZE)
+
+    @staticmethod
+    def getInChunkCoords((x, y)):
+        '''Returns the in-chunk coordinates of the block at the given coords.  Does not guarantee that the chunk exists, just that that block would mathematically be there.'''
+        return (x%Const.CHUNK_SIZE, y%Const.CHUNK_SIZE)
 
     @staticmethod
     def physics_getBlockCoords(entities):
