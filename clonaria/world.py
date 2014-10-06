@@ -1,8 +1,10 @@
 from __future__ import division
 import random
 
-import pyglet
 from Box2D import *
+import math
+import pyglet
+import random as rand
 
 from const import *
 from state import *
@@ -15,6 +17,11 @@ class World(object):
         self.name = name
         self.worldType = worldType
         self.layers = [WorldLayer(self, l) for l in xrange(Const.NUM_LAYERS)]
+        
+        if self.worldType == 'SINE':
+            self.sineNumbers = []
+            for n in xrange(10):
+                self.sineNumbers.append((rand.randint(1, 20), rand.randint(1, 5), rand.randint(-10, 10)))
 
     def isValidCoords(self, location, l=1):
         '''Returns True if the given block coords refer to a chunk that actually exists, False otherwise.'''
@@ -161,11 +168,27 @@ class WorldLayer(object):
 
     def generateBlock(self, (x, y)):
         '''Generates the block at the given coords.'''
-        if y > 0:
-            block = State().blockModels['air']
+        if self.world.worldType == 'FLAT':
+            if y > 0:
+                block = State().blockModels['air']
+            else:
+                block = State().blockModels['dirt']
+            return self.setBlockAtUnsafe(block, (x, y))
+        elif self.world.worldType == 'SINE':
+            height = 0
+            for s in self.world.sineNumbers:
+                height += math.sin(x/s[0])*s[1]+s[2]
+            if y > height:
+                block = State().blockModels['air']
+            else:
+                block = State().blockModels['dirt']
+            return self.setBlockAtUnsafe(block, (x, y))
         else:
-            block = State().blockModels['dirt']
-        return self.setBlockAtUnsafe(block, (x, y))
+            if y > 0:
+                block = State().blockModels['air']
+            else:
+                block = State().blockModels['dirt']
+            return self.setBlockAtUnsafe(block, (x, y))
 
     def prepareDraw(self):
         '''Prepares all blocks in the viewing window to be drawn to the screen.'''

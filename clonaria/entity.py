@@ -49,14 +49,14 @@ class Entity(object):
 
     def walkLeft(self):
         self.facing = 'l'
-        self.body.ApplyLinearImpulse(impulse=Const.LEFT, point=self.body.worldCenter, wake=True)
+        self.body.ApplyLinearImpulse(impulse=(-Const.ACCELERATION_WALK, 0), point=self.body.worldCenter, wake=True)
 
     def walkRight(self):
         self.facing = 'r'
-        self.body.ApplyLinearImpulse(impulse=Const.RIGHT, point=self.body.worldCenter, wake=True)
+        self.body.ApplyLinearImpulse(impulse=(Const.ACCELERATION_WALK, 0), point=self.body.worldCenter, wake=True)
 
     def jump(self):
-        self.body.ApplyLinearImpulse(impulse=tuple(x*5 for x in Const.UP), point=self.body.worldCenter, wake=True)
+        self.body.ApplyLinearImpulse(impulse=(0, Const.ACCELERATION_JUMP), point=self.body.worldCenter, wake=True)
         if self.againstBlockDown: # We are starting a new jump
             self.stillJumping = True
             self.curJumpTicks = self.maxJumpTicks
