@@ -9,9 +9,7 @@ import yaml
 from edge import *
 from const import *
 from model import *
-from seg import *
 from state import *
-from vec import *
 
 class Util(object):
     '''Utility class with various helpful functions.'''
@@ -65,6 +63,26 @@ class Util(object):
          return math.sqrt((bx-ax)**2 + (by-ay)**2)
 
     @staticmethod
+    def add_tuple(a, b):
+        return tuple(map(operator.add, a, b))
+
+    @staticmethod
+    def sub_tuple(a, b):
+        return tuple(map(operator.sub, a, b))
+
+    @staticmethod
+    def mul_tuple(a, b):
+        return tuple(map(operator.mul, a, b))
+
+    @staticmethod
+    def div_tuple(a, b):
+        return tuple(map(operator.div, a, b))
+
+    @staticmethod
+    def int_tuple(a):
+        return tuple(map(int, a))
+
+    @staticmethod
     def getLineOfSightBlocks((dx, dy), world, loc, l=1, maxblocks=None, maxdistance=None):
         '''Returns a list of all coordinates up to and including the first solid block found in 'world' on layer 'l' at 'loc' in the direction of the unit vector '(dx, dy)'.  Stops checking if maxdistance or maxblocks are specified and reached.  The returned list is ordered from closest to farthest.'''
 
@@ -73,36 +91,36 @@ class Util(object):
         # Special case: Direction is zero. Return current block.
         if dx == 0 and dy == 0:
             if world.isSolidAt(loc, l=l):
-                blocks.append(loc.int)
+                blocks.append(Util.int_tuple(loc))
 
         # Special case: Direction is vertical or horizontal. Add direction vector to location until solid block is found.
         elif dx == 0 or dy == 0:
             newloc = loc
             while True:
-                blocks.append(newloc.int)
+                blocks.append(Util.int_tuple(newloc))
                 if world.isSolidAt(newloc, l=l) is not False: break # Stop once we hit a solid block or the edge of the world.
                 if maxblocks is not None and len(blocks) >= maxblocks: break # Stop once we hit the maxblocks limit.
                 if maxdistance is not None and Util.distancePoint(loc, newloc) >= maxdistance: break # Stop once we hit the maxdistance limit.
-                newloc = newloc + Vec(dx, dy)
+                newloc = Util.add_tuple(newloc, (dx, dy))
 
         # Otherwise, use Bresenham's line algorithm.
         else:
             slope = dy / dx
             x, y = loc
             while True:
-                blocks.append(Vec(x, y).int)
-                if world.isSolidAt(Vec(x, y), l=l) is not False: break # Stop once we hit a solid block or the edge of the world.
+                blocks.append(Util.int_tuple((x, y)))
+                if world.isSolidAt((x, y), l=l) is not False: break # Stop once we hit a solid block or the edge of the world.
                 if maxblocks is not None and len(blocks) >= maxblocks: break # Stop once we hit the maxblocks limit.
-                if maxdistance is not None and Util.distancePoint(loc, Vec(x, y)) >= maxdistance: break # Stop once we hit the maxdistance limit.
+                if maxdistance is not None and Util.distancePoint(loc, (x, y)) >= maxdistance: break # Stop once we hit the maxdistance limit.
                 x += dx
                 y = slope * (x - loc[0]) + loc[1]
             
         return blocks
 
     @staticmethod
-    def getClosestSolidBlock(vec, world, loc, l=1, maxdistance=None):
-        '''Returns the coordinates of the closest solid block in 'world' on layer 'l' at 'loc' in the direction of the unit vector 'vec'.  Stops checking if maxdistance is specified and reached.'''
-        blocks = Util.getLineOfSightBlocks(vec, world, loc, l, maxdistance=maxdistance)
+    def getClosestSolidBlock((dx, dy), world, loc, l=1, maxdistance=None):
+        '''Returns the coordinates of the closest solid block in 'world' on layer 'l' at 'loc' in the direction of the unit vector '(dx, dy)'.  Stops checking if maxdistance is specified and reached.'''
+        blocks = Util.getLineOfSightBlocks((dx, dy), world, loc, l, maxdistance=maxdistance)
         if len(blocks) == 0: return None
         else: return blocks[-1]
 
@@ -112,9 +130,10 @@ class Util(object):
         blocks = []
         for x in xrange(int(bb.lowerBound[0] - 1), int(bb.upperBound[0] + 2)):
             for y in xrange(int(bb.lowerBound[1] - 1), int(bb.upperBound[1] + 2)):
-                if entity.world.isSolidAt(Vec(x, y)):
-                    blocks.append(Vec(x, y))
+                if entity.world.isSolidAt((x, y)):
+                    blocks.append(Util.int_tuple((x, y)))
         return blocks
+
 
     @staticmethod
     def addDebugStats(texts):
@@ -137,39 +156,39 @@ class Util(object):
     def prepareDrawDebugTarget():
         '''Prepares the mouse-targeted debug block to be drawn'''
 
-        State().debugTarget.position = Util.blocksToPixels(Util.pixelsToBlocks(Vec(State().mouseLoc))).tuple
+        State().debugTarget.position = Util.blocksToPixels(Util.pixelsToBlocks(State().mouseLoc))
         State().debugTarget.scale = Const.ZOOM
 
     @staticmethod
     def getScreenCenter():
         '''Returns the on-screen pixel coordinates to the pixel in the middle of the screen'''
-        return Vec(State().window.width / 2, State().window.height / 2)
+        return (State().window.width / 2, State().window.height / 2)
 
     @staticmethod
-    def blocksToPixels(v):
+    def blocksToPixels((x, y)):
         '''Returns the on-screen pixel coordinates to the lower left corner pixel of the given block'''
-        return Vec(((v.x - State().player.body.position.x) * Const.PPB * Const.ZOOM + (State().window.width / 2)), (v.y - State().player.body.position.y) * Const.PPB * Const.ZOOM + (State().window.height / 2))
+        return ((x - State().player.body.position.x) * Const.PPB * Const.ZOOM + (State().window.width / 2)), (y - State().player.body.position.y) * Const.PPB * Const.ZOOM + (State().window.height / 2)
 
     @staticmethod
-    def pixelsToBlocks(v):
+    def pixelsToBlocks((x, y)):
         '''Returns the world coordinates of the block at the given on-screen pixel coordinates'''
-        return Vec((int) ((math.floor(v.x) - (State().window.width / 2)) / Const.PPB / Const.ZOOM + State().player.body.position.x), (int) ((math.floor(v.y) - (State().window.height / 2)) / Const.PPB / Const.ZOOM + State().player.body.position.y))
+        return ((int) ((math.floor(x) - (State().window.width / 2)) / Const.PPB / Const.ZOOM + State().player.body.position.x), (int) ((math.floor(y) - (State().window.height / 2)) / Const.PPB / Const.ZOOM + State().player.body.position.y))
 
     @staticmethod
-    def isBlockOnScreen(v):
+    def isBlockOnScreen((x, y)):
         blocksOutHor = State().window.width / 2 / Const.ZOOM / Const.PPB + 1
         blocksOutVert = State().window.height / 2 / Const.ZOOM / Const.PPB + 1
-        return v.x >= int(State().player.body.position.x - blocksOutHor) and v.x < int(State().player.body.position.x + blocksOutHor) and v.y >= int(State().player.body.position.y - blocksOutVert) and v.y < int(State().player.body.position.y + blocksOutVert)
+        return x >= int(State().player.body.position.x - blocksOutHor) and x < int(State().player.body.position.x + blocksOutHor) and y >= int(State().player.body.position.y - blocksOutVert) and y < int(State().player.body.position.y + blocksOutVert)
 
     @staticmethod
-    def getChunkAt(v):
+    def getChunkAt((x, y)):
         '''Returns the coordinates of the chunk containing the block at the given coords.  Does not guarantee that the chunk exists, just that that block would mathematically be there.'''
-        return Vec(v.x//Const.CHUNK_SIZE, v.y//Const.CHUNK_SIZE)
+        return (x//Const.CHUNK_SIZE, y//Const.CHUNK_SIZE)
 
     @staticmethod
-    def getInChunkCoords(v):
+    def getInChunkCoords((x, y)):
         '''Returns the in-chunk coordinates of the block at the given coords.  Does not guarantee that the chunk exists, just that that block would mathematically be there.'''
-        return Vec(v.x%Const.CHUNK_SIZE, v.y%Const.CHUNK_SIZE)
+        return (x%Const.CHUNK_SIZE, y%Const.CHUNK_SIZE)
 
     @staticmethod
     def physics_getBlockCoords(entities):
@@ -184,14 +203,14 @@ class Util(object):
 
     @staticmethod
     def physics_getEdgeCoords(entities):
-        '''Returns a list of edge coords in (seg, location) format for blocks near the given entities, one for each line segment of each block's hitbox.  The 'seg' variable is a Seg[ment].'''
+        '''Returns a list of edge coords in (vertices, location) format for blocks near the given entities, one for each line segment of each block's hitbox.  The 'vertices' variable is a tuple of vertices.'''
         coords = Util.physics_getBlockCoords(entities)
         edges = []
         for coord in coords:
             points = State().world.getBlockAt(coord).get('hitbox')
-            segs = Util.polygonPointsToSegs(points)
-            for seg in segs:
-                edges.append((seg, coord))
+            lines = Util.polygonPointsToLines(points)
+            for line in lines:
+                edges.append((line, coord))
         return edges
 
     @staticmethod
@@ -207,7 +226,7 @@ class Util(object):
         # Create new EdgePhysics objects for edges that are relevant (if they don't already exist).
         for newEdgeCoord in newEdgeCoords:
             if newEdgeCoord not in State().physics_edgePhysics:
-                State().physics_edgePhysics[newEdgeCoord] = EdgePhysics(newEdgeCoord[0], newEdgeCoord[1])
+                State().physics_edgePhysics[newEdgeCoord] = EdgePhysics(list(newEdgeCoord[0]), newEdgeCoord[1])
 
     @staticmethod
     def prepareDrawDebugPhysicsBlocks():
@@ -228,7 +247,7 @@ class Util(object):
 
         # Update the properties of each Sprite.
         for coords, sprite in State().debugPhysicsBlocks.iteritems():
-            sprite.position = Util.blocksToPixels(coords).tuple
+            sprite.position = Util.blocksToPixels(coords)
             sprite.scale = Const.ZOOM
 
     @staticmethod
@@ -239,7 +258,7 @@ class Util(object):
 
         for entity in allEntities:
             #if Util.isBlockOnScreen(entity.body.position):
-            hitbox = [Util.blocksToPixels(Vec(entity.body.position) + Vec(coords)).tuple for coords in entity.shape.vertices]
+            hitbox = [Util.blocksToPixels(Util.add_tuple(entity.body.position, coords)) for coords in entity.shape.vertices]
             datalist = Util.createGLDataList(hitbox, (255,0,255,64))
             pyglet.graphics.draw(len(hitbox), pyglet.gl.GL_POLYGON, *datalist)
 
@@ -249,9 +268,9 @@ class Util(object):
         return datalist
 
     @staticmethod
-    def polygonPointsToSegs(polygon):
-        '''Converts a list of polygon point Vec[tors] to a list of polygon line Seg[ment] objects.'''
-        segs = []
+    def polygonPointsToLines(polygon):
+        '''Converts a list of polygon point tuples to a list of polygon line tuples.'''
+        lines = []
         for i in xrange(len(polygon)):
-            segs.append(Seg(polygon[i-1], polygon[i]))
-        return segs
+            lines.append((polygon[i-1], polygon[i]))
+        return lines

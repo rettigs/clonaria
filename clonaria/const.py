@@ -1,7 +1,5 @@
 from __future__ import division
 
-from vec import *
-
 class Const(object):
     '''Game constants'''
 
@@ -24,10 +22,10 @@ class Const(object):
 
     BLOCK_THRESHOLD = 1 / PPB / 4
 
-    UP      = Vec(0, 1)
-    DOWN    = Vec(0, -1)
-    RIGHT   = Vec(1, 0)
-    LEFT    = Vec(-1, 0)
+    UP      = (0, 1)
+    DOWN    = (0, -1)
+    RIGHT   = (1, 0)
+    LEFT    = (-1, 0)
 
     # World types
     WORLD_TYPES = ['NORMAL', 'FLAT', 'SINE']
