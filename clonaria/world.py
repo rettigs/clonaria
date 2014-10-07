@@ -143,6 +143,9 @@ class WorldLayer(object):
     def setBlockAt(self, blockType, coords):
         self.ensureBlockLoaded(coords)
 
+        if coords in self.blockSprites:
+            del self.blockSprites[coords]
+
         return self.chunks[Util.getChunkAt(coords)].setBlockAt(blockType, Util.getInChunkCoords(coords))
 
     def setBlockAtUnsafe(self, blockType, coords):
@@ -216,7 +219,7 @@ class WorldLayer(object):
 
         # Cull blocks sprites that don't need to be drawn.
         for pos in self.blockSprites.keys():
-            if not Util.isBlockOnScreen(pos) or self.isEmptyAt(pos):
+            if not Util.isBlockOnScreen(pos):
                 del self.blockSprites[pos]
 
 class Chunk(object):

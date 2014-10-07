@@ -66,7 +66,8 @@ if __name__ == '__main__':
                         '"player.body.linearVelocity.y: {}".format(State().player.body.linearVelocity.y)',
                         '"player.stillJumping: {}".format(State().player.stillJumping)',
                         '"player.againstBlockDown: {}".format(State().player.againstBlockDown)',
-                        '"player.againstBlockLeft: {}".format(State().player.againstBlockLeft)']
+                        '"player.againstBlockLeft: {}".format(State().player.againstBlockLeft)',
+                        '"targetBlock: {}".format(Util.pixelsToBlocks(State().debugTarget.position))']
         Util.addDebugStats(debugStats)
 
         State().debugTarget = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,0,0,128)).create_image(16, 16), batch=State().batch, group=State().group['debug'])
