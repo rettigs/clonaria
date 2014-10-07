@@ -9,6 +9,7 @@ import random as rand
 from const import *
 from state import *
 from util import *
+from vec import *
 
 class World(object):
     '''Represents a game world as a list of WorldLayers.'''
@@ -32,14 +33,14 @@ class World(object):
 
     def getBlockAt(self, coords, l=1):
         '''Returns the block at the given coords on the given layer if the coordinates are valid.'''
-        coords = Util.int_tuple(coords)
+        coords = coords.int
         if self.isValidCoords(coords, l):
             return self.layers[l].getBlockAt(coords)
         else:
             return None
 
     def setBlockAt(self, blockType, coords, l=1):
-        coords = Util.int_tuple(coords)
+        coords = coords.int
         if self.isValidCoords(coords, l):
 
             # If given a string, get the model it refers to.
@@ -55,7 +56,7 @@ class World(object):
         return self.layers[l].generateBlock(coords)
         
 
-    def getAdjacentBlocks(self, (x, y), l=1, multiLayer=False):
+    def getAdjacentBlocks(self, v, l=1, multiLayer=False):
         '''Returns all blocks directly adjacent to the block at the given coords.  If multiLayer is enabled, will also return the blocks behind and in front.'''
         blocks = []
 
@@ -70,19 +71,17 @@ class World(object):
 
         return blocks
 
-    def isEmptyAt(self, (x, y), l=1):
-        x = int(x)
-        y = int(y)
-        if self.isValidCoords((x, y), l):
-            return self.layers[l].isEmptyAt((x, y))
+    def isEmptyAt(self, v, l=1):
+        v = v.int
+        if self.isValidCoords(v, l):
+            return self.layers[l].isEmptyAt(v)
         else:
             return None
 
-    def isSolidAt(self, (x, y), l=1):
-        x = int(x)
-        y = int(y)
-        if self.isValidCoords((x, y), l):
-            return self.layers[l].isSolidAt((x, y))
+    def isSolidAt(self, v, l=1):
+        v = v.int
+        if self.isValidCoords(v, l):
+            return self.layers[l].isSolidAt(v)
         else:
             return None
 
@@ -155,40 +154,40 @@ class WorldLayer(object):
         self.ensureBlockLoaded(coords)
         return self.chunks[Util.getChunkAt(coords)].isSolidAt(Util.getInChunkCoords(coords))
 
-    def generateChunk(self, (x, y)):
+    def generateChunk(self, v):
         '''Generates all blocks in the chunk at the given coords.'''
-        self.chunks[(x, y)] = Chunk(self.world, self)
+        self.chunks[v] = Chunk(self.world, self)
 
-        wx = x * Const.CHUNK_SIZE
-        wy = y * Const.CHUNK_SIZE
+        wx = v.x * Const.CHUNK_SIZE
+        wy = v.y * Const.CHUNK_SIZE
         for dx in xrange(Const.CHUNK_SIZE):
             for dy in xrange(Const.CHUNK_SIZE):
                 # Add world coordinates of chunk to in-chunk coords of each block to get world coordinates of each block.
-                self.generateBlock((wx+dx, wy+dy))
+                self.generateBlock(Vec(wx+dx, wy+dy))
 
-    def generateBlock(self, (x, y)):
+    def generateBlock(self, v):
         '''Generates the block at the given coords.'''
         if self.world.worldType == 'FLAT':
-            if y > 0:
+            if v.y > 0:
                 block = State().blockModels['air']
             else:
                 block = State().blockModels['dirt']
-            return self.setBlockAtUnsafe(block, (x, y))
+            return self.setBlockAtUnsafe(block, v)
         elif self.world.worldType == 'SINE':
             height = 0
             for s in self.world.sineNumbers:
                 height += math.sin(x/s[0])*s[1]+s[2]
-            if y > height:
+            if v.y > height:
                 block = State().blockModels['air']
             else:
                 block = State().blockModels['dirt']
-            return self.setBlockAtUnsafe(block, (x, y))
+            return self.setBlockAtUnsafe(block, v)
         else:
-            if y > 0:
+            if v.y > 0:
                 block = State().blockModels['air']
             else:
                 block = State().blockModels['dirt']
-            return self.setBlockAtUnsafe(block, (x, y))
+            return self.setBlockAtUnsafe(block, v)
 
     def prepareDraw(self):
         '''Prepares all blocks in the viewing window to be drawn to the screen.'''
@@ -200,18 +199,19 @@ class WorldLayer(object):
 
         for y in xrange(int(player.body.position.y - blocksOutVert), int(player.body.position.y + blocksOutVert)):
             for x in xrange(int(player.body.position.x - blocksOutHor), int(player.body.position.x + blocksOutHor)):
-                if self.isValidCoords((x, y)):
-                    block = self.getBlockAt((x, y))
+                c = Vec(x, y)
+                if self.isValidCoords(c):
+                    block = self.getBlockAt(c)
                     if block.get('type') != 'air':
-                        sx, sy = Util.blocksToPixels((x, y))
-                        if (x, y) in self.blockSprites:
-                            oldSprite = self.blockSprites[x, y]
-                            oldSprite.position = sx, sy
+                        sc = Util.blocksToPixels(c)
+                        if c in self.blockSprites:
+                            oldSprite = self.blockSprites[c]
+                            oldSprite.position = sc.tuple
                             oldSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
                         else:
-                            newSprite = pyglet.sprite.Sprite(self.getBlockAt((x, y)).get('texture'), x=sx, y=sy, batch=batch, group=State().group['layer1'])
+                            newSprite = pyglet.sprite.Sprite(self.getBlockAt(c).get('texture'), x=sc.x, y=sc.y, batch=batch, group=State().group['layer1'])
                             newSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
-                            self.blockSprites[x, y] = newSprite
+                            self.blockSprites[c] = newSprite
 
         for pos in self.blockSprites.keys():
             if not Util.isBlockOnScreen(pos):
@@ -224,17 +224,17 @@ class Chunk(object):
         self.world = world
         self.layer = layer
         self.blocks = [[None for x in xrange(Const.CHUNK_SIZE)] for y in xrange(Const.CHUNK_SIZE)]
-        self.blockData = {} # Dict with block location tuple as key and a dict of special data as the value.
+        self.blockData = {} # Dict with block location Vec as key and a dict of special data as the value.
 
-    def getBlockAt(self, (x, y)):
-        return self.blocks[x][y]
+    def getBlockAt(self, v):
+        return self.blocks[v.x][v.y]
 
-    def setBlockAt(self, blockType, (x, y)):
-        self.blocks[x][y] = blockType 
+    def setBlockAt(self, blockType, v):
+        self.blocks[v.x][v.y] = blockType 
 
         # Setting a block means the old Sprite needs to be deleted.  The new one will be created on the next tick.
-        if (x, y) in self.layer.blockSprites:
-            del self.layer.blockSprites[(x, y)]
+        if v in self.layer.blockSprites:
+            del self.layer.blockSprites[v]
 
         return True
 

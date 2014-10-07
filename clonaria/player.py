@@ -12,5 +12,5 @@ class Player(Entity):
 
     def __init__(self, entityModel, world, location):
         super(Player, self).__init__(entityModel, world, location)
-        sx, sy = Util.getScreenCenter()
-        self.sprite = pyglet.sprite.Sprite(entityModel.get('texture'), batch=State().batch, group=State().group['player'], x=sx, y=sy)
+        sc = Util.getScreenCenter()
+        self.sprite = pyglet.sprite.Sprite(entityModel.get('texture'), batch=State().batch, group=State().group['player'], x=sc.x, y=sc.y)

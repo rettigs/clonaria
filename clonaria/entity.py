@@ -7,16 +7,17 @@ from Box2D import *
 
 from const import *
 from util import *
+from vec import *
 
 class Entity(object):
     '''Represents an entity in the world, including its graphics and physics models.'''
 
     def __init__(self, model, world, location):
         self.sprite = pyglet.sprite.Sprite(model.get('texture'), batch=State().batch, group=State().group['entity'])
-        self.offset = (-self.sprite.image.width / Const.PPB, -self.sprite.image.height / Const.PPB)
+        self.offset = Vec(-self.sprite.image.width / Const.PPB, -self.sprite.image.height / Const.PPB)
 
-        self.body = State().space.CreateDynamicBody(position=location, fixedRotation=True)
-        self.shape = b2PolygonShape(vertices=[Util.add_tuple(p, self.offset) for p in model.get('hitbox')])
+        self.body = State().space.CreateDynamicBody(position=location.tuple, fixedRotation=True)
+        self.shape = b2PolygonShape(vertices=[(p + self.offset).tuple for p in model.get('hitbox')])
         self.fixture = self.body.CreatePolygonFixture(shape=self.shape, density=1, friction=0.3)
 
         self.model = model
@@ -35,8 +36,7 @@ class Entity(object):
         self.updateSprite()
         self.sprite.image.anchor_x = self.sprite.image.width / 2
         self.sprite.image.anchor_y = self.sprite.image.height / 2
-        sx, sy = Util.blocksToPixels(self.body.position)
-        self.sprite.position = sx, sy
+        self.sprite.position = Util.blocksToPixels(self.body.position).tuple
         self.sprite.scale = Const.ZOOM * Const.BLOCK_SCALE
         self.sprite.rotation = math.degrees(-self.body.angle)
 

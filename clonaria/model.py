@@ -5,6 +5,7 @@ import pyglet
 from pyglet.gl import *
 
 from const import *
+from vec import *
 
 class Model(object):
     '''Container for stateless, generic data that is not specific to a particular object, such as a block or entity.'''
@@ -12,10 +13,10 @@ class Model(object):
     def __init__(self, properties):
         self.properties = properties
 
-        # Eval the hitbox string to a list of (x, y) coordinate tuples.
+        # Eval the hitbox string to a list of Vec(x, y) coordinate objects.
         if 'hitbox' in self.properties:
             hitbox = eval(self.get('hitbox'))
-            hitbox = [(x/Const.PPB, y/Const.PPB) for x, y in hitbox] # Scale the hitbox to the current block proportions.
+            hitbox = [Vec(x/Const.PPB, y/Const.PPB) for x, y in hitbox] # Scale the hitbox to the current block proportions.
             self.set('hitbox', hitbox)
 
         # Prepare to load the textures.

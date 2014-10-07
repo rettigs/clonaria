@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     State().world = world = World("world1", worldType=State().worldType)
 
-    State().player = player = Player(State().entityModels['player'], world, (0, 10))
+    State().player = player = Player(State().entityModels['player'], world, Vec(0, 10))
 
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
@@ -126,13 +126,13 @@ if __name__ == '__main__':
         
         # Handle mouse input
         if mouse.LEFT in buttons:
-            loc = Util.pixelsToBlocks(State().mouseLoc)
+            loc = Util.pixelsToBlocks(Vec(State().mouseLoc))
             world.setBlockAt(State().blockModels['air'], loc)
         if mouse.MIDDLE in buttons:
-            loc = Util.pixelsToBlocks(State().mouseLoc)
+            loc = Util.pixelsToBlocks(Vec(State().mouseLoc))
             world.setBlockAt(State().blockModels['platform'], loc)
         if mouse.RIGHT in buttons:
-            loc = Util.pixelsToBlocks(State().mouseLoc)
+            loc = Util.pixelsToBlocks(Vec(State().mouseLoc))
             world.setBlockAt(State().blockModels['cone'], loc)
 
         if not playerJumping or player.curJumpTicks < 1:
