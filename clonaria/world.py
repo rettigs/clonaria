@@ -142,6 +142,7 @@ class WorldLayer(object):
 
     def setBlockAt(self, blockType, coords):
         self.ensureBlockLoaded(coords)
+
         return self.chunks[Util.getChunkAt(coords)].setBlockAt(blockType, Util.getInChunkCoords(coords))
 
     def setBlockAtUnsafe(self, blockType, coords):
@@ -213,8 +214,9 @@ class WorldLayer(object):
                             newSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
                             self.blockSprites[x, y] = newSprite
 
+        # Cull blocks sprites that don't need to be drawn.
         for pos in self.blockSprites.keys():
-            if not Util.isBlockOnScreen(pos):
+            if not Util.isBlockOnScreen(pos) or self.isEmptyAt(pos):
                 del self.blockSprites[pos]
 
 class Chunk(object):
@@ -231,11 +233,6 @@ class Chunk(object):
 
     def setBlockAt(self, blockType, (x, y)):
         self.blocks[x][y] = blockType 
-
-        # Setting a block means the old Sprite needs to be deleted.  The new one will be created on the next tick.
-        if (x, y) in self.layer.blockSprites:
-            del self.layer.blockSprites[(x, y)]
-
         return True
 
     def isEmptyAt(self, coords):
