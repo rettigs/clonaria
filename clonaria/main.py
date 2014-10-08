@@ -91,6 +91,7 @@ if __name__ == '__main__':
     @window.event
     def on_draw():
         window.clear()
+        State().cameraPos = tuple(State().player.body.position)
         world.prepareDraw()
         player.prepareDraw()
         if State().debug:

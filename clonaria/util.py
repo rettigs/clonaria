@@ -165,20 +165,28 @@ class Util(object):
         return (State().window.width / 2, State().window.height / 2)
 
     @staticmethod
-    def blocksToPixels((x, y)):
+    def blocksToPixels((bx, by)):
         '''Returns the on-screen pixel coordinates to the lower left corner pixel of the given block'''
-        return ((x - State().player.body.position.x) * Const.PPB * Const.ZOOM + (State().window.width / 2)), (y - State().player.body.position.y) * Const.PPB * Const.ZOOM + (State().window.height / 2)
+        camX, camY = State().cameraPos
+        px = (bx - camX) * Const.PPB * Const.ZOOM + (State().window.width / 2)
+        py = (by - camY) * Const.PPB * Const.ZOOM + (State().window.height / 2 + 1)
+        return (px, py)
 
     @staticmethod
-    def pixelsToBlocks((x, y)):
+    def pixelsToBlocks((px, py)):
         '''Returns the world coordinates of the block at the given on-screen pixel coordinates'''
-        return ((int) ((math.floor(x) - (State().window.width / 2)) / Const.PPB / Const.ZOOM + State().player.body.position.x), (int) ((math.floor(y) - (State().window.height / 2)) / Const.PPB / Const.ZOOM + State().player.body.position.y))
+        camX, camY = State().cameraPos
+        bx = math.floor((math.floor(px) - (State().window.width / 2)) / Const.PPB / Const.ZOOM + camX)
+        by = math.floor((math.floor(py) - (State().window.height / 2)) / Const.PPB / Const.ZOOM + camY)
+        return (bx, by)
 
     @staticmethod
     def isBlockOnScreen((x, y)):
+        '''Returns True if the block at the given coordinates is on the screen.'''
+        camX, camY = State().cameraPos
         blocksOutHor = State().window.width / 2 / Const.ZOOM / Const.PPB + 1
         blocksOutVert = State().window.height / 2 / Const.ZOOM / Const.PPB + 1
-        return x >= int(State().player.body.position.x - blocksOutHor) and x < int(State().player.body.position.x + blocksOutHor) and y >= int(State().player.body.position.y - blocksOutVert) and y < int(State().player.body.position.y + blocksOutVert)
+        return x >= int(camX - blocksOutHor) and x < int(camX + blocksOutHor) and y >= int(camY - blocksOutVert) and y < int(camY + blocksOutVert)
 
     @staticmethod
     def getChunkAt((x, y)):

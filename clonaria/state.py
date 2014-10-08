@@ -26,6 +26,7 @@ class State(Singleton):
         self.physics_edgePhysics = {}
 
         # Graphics variables
+        self.cameraPos = (0, 0) # In block coordinates
         self.blockModels = None
         self.entityModels = None
         self.batch = pyglet.graphics.Batch()

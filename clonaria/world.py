@@ -197,13 +197,13 @@ class WorldLayer(object):
     def prepareDraw(self):
         '''Prepares all blocks in the viewing window to be drawn to the screen.'''
         window = State().window
-        player = State().player
+        camX, camY = State().cameraPos
         blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1
         blocksOutVert = window.height / 2 / Const.ZOOM / Const.PPB + 1
         batch = State().batch
 
-        for y in xrange(int(player.body.position.y - blocksOutVert), int(player.body.position.y + blocksOutVert)):
-            for x in xrange(int(player.body.position.x - blocksOutHor), int(player.body.position.x + blocksOutHor)):
+        for y in xrange(int(camY - blocksOutVert), int(camY + blocksOutVert)):
+            for x in xrange(int(camX - blocksOutHor), int(camX + blocksOutHor)):
                 if self.isValidCoords((x, y)):
                     block = self.getBlockAt((x, y))
                     if block.get('type') != 'air':
