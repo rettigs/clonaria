@@ -67,10 +67,8 @@ if __name__ == '__main__':
                         '"player.stillJumping: {}".format(State().player.stillJumping)',
                         '"player.againstBlockDown: {}".format(State().player.againstBlockDown)',
                         '"player.againstBlockLeft: {}".format(State().player.againstBlockLeft)',
-                        '"targetBlock: {}".format(Util.pixelsToBlocks(State().debugTarget.position))']
+                        '"targetBlock: {}".format(Util.pixelsToBlocks(State().mouseLoc))']
         Util.addDebugStats(debugStats)
-
-        State().debugTarget = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,0,0,128)).create_image(16, 16), batch=State().batch, group=State().group['debug'])
 
     @window.event
     def on_mouse_press(x, y, button, modifiers):
@@ -96,13 +94,15 @@ if __name__ == '__main__':
         player.prepareDraw()
         if State().debug:
             Util.prepareDrawDebugStats()
-            Util.prepareDrawDebugPhysicsBlocks()
-            Util.prepareDrawDebugTarget()
 
         batch.draw()
 
         if State().debug:
-            Util.drawDebugPhysicsEntities()
+            Util.drawDebugPhysicsBlocks()
+            Util.drawDebugPhysicsBlockHitboxes()
+            Util.drawDebugTargetBlock()
+            Util.drawDebugChunkBorders()
+            Util.drawDebugPhysicsEntityHitboxes()
 
     def update(self):
         State().physics_blockCoords = Util.physics_getBlockCoords([player])
@@ -120,9 +120,9 @@ if __name__ == '__main__':
             playerJumping = True
             player.jump()
         if keys[key.PLUS] or keys[key.NUM_ADD]:
-            Const.ZOOM += 1. / Const.PPB
+            Const.ZOOM += 1 / Const.PPB
         if keys[key.MINUS] or keys[key.NUM_SUBTRACT]:
-            Const.ZOOM -= 1. / Const.PPB
+            Const.ZOOM -= 1 / Const.PPB
         if keys[key.EQUAL]:
             Const.ZOOM = 1
         

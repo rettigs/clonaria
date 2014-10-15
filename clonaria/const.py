@@ -29,3 +29,12 @@ class Const(object):
 
     # World types
     WORLD_TYPES = ['NORMAL', 'FLAT', 'SINE']
+
+    # Predefined colors for certain drawables
+    COLORS = dict(
+        DEBUG_CHUNK_BORDER=(0,255,0,255), # Green
+        DEBUG_ENTITY_HITBOX=(255,0,0,255), # Red
+        DEBUG_PHYSICS_BLOCK_HITBOX=(0,0,255,255), # Blue
+        DEBUG_TARGET_BLOCK_HIGHLIGHT=(255,0,0,128), # Transparent red
+        DEBUG_PHYSICS_BLOCK_HIGHLIGHT=(255,255,0,128) # Transparent yellow
+    )

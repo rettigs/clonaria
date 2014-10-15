@@ -161,7 +161,7 @@ class WorldLayer(object):
 
     def generateChunk(self, (x, y)):
         '''Generates all blocks in the chunk at the given coords.'''
-        self.chunks[(x, y)] = Chunk(self.world, self)
+        self.chunks[(x, y)] = Chunk(self.world, self, (x, y))
 
         wx = x * Const.CHUNK_SIZE
         wy = y * Const.CHUNK_SIZE
@@ -225,9 +225,10 @@ class WorldLayer(object):
 class Chunk(object):
     '''Represents one 64x64 area of a game world as block Models with optional special data.'''
 
-    def __init__(self, world, layer):
+    def __init__(self, world, layer, location):
         self.world = world
         self.layer = layer
+        self.location = location
         self.blocks = [[None for x in xrange(Const.CHUNK_SIZE)] for y in xrange(Const.CHUNK_SIZE)]
         self.blockData = {} # Dict with block location tuple as key and a dict of special data as the value.
 
@@ -243,3 +244,11 @@ class Chunk(object):
 
     def isSolidAt(self, coords):
         return self.getBlockAt(coords).get('solid')
+
+    def drawDebugBorders(self):
+        cs = Const.CHUNK_SIZE
+        x = self.location[0]*cs
+        y = self.location[1]*cs
+        bPoints = [(x, y), (x+cs, y), (x+cs, y+cs), (x, y+cs)]
+        pPoints = [Util.blocksToPixels(point) for point in bPoints]
+        Util.drawPolygonOutline(pPoints, Const.COLORS['DEBUG_CHUNK_BORDER'])

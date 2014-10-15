@@ -31,8 +31,6 @@ class State(Singleton):
         self.entityModels = None
         self.batch = pyglet.graphics.Batch()
         self.debugStats = []
-        self.debugPhysicsBlocks = {}
-        self.debugTarget = None
         self.group = {}
         for x in xrange(Const.NUM_LAYERS):
             self.group['layer{}'.format(x-1)] = pyglet.graphics.OrderedGroup(x-1)

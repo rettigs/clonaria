@@ -4,6 +4,7 @@ import operator
 import os
 
 import pyglet
+from pyglet.gl import *
 import yaml
 
 from edge import *
@@ -63,8 +64,8 @@ class Util(object):
          return math.sqrt((bx-ax)**2 + (by-ay)**2)
 
     @staticmethod
-    def add_tuple(a, b):
-        return tuple(map(operator.add, a, b))
+    def add_tuple(*args):
+        return tuple(map(sum, zip(*args)))
 
     @staticmethod
     def sub_tuple(a, b):
@@ -83,6 +84,10 @@ class Util(object):
         return tuple(map(int, a))
 
     @staticmethod
+    def int_floor(a):
+        return tuple(map(math.floor, a))
+
+    @staticmethod
     def getLineOfSightBlocks((dx, dy), world, loc, l=1, maxblocks=None, maxdistance=None):
         '''Returns a list of all coordinates up to and including the first solid block found in 'world' on layer 'l' at 'loc' in the direction of the unit vector '(dx, dy)'.  Stops checking if maxdistance or maxblocks are specified and reached.  The returned list is ordered from closest to farthest.'''
 
@@ -91,13 +96,13 @@ class Util(object):
         # Special case: Direction is zero. Return current block.
         if dx == 0 and dy == 0:
             if world.isSolidAt(loc, l=l):
-                blocks.append(Util.int_tuple(loc))
+                blocks.append(Util.int_floor(loc))
 
         # Special case: Direction is vertical or horizontal. Add direction vector to location until solid block is found.
         elif dx == 0 or dy == 0:
             newloc = loc
             while True:
-                blocks.append(Util.int_tuple(newloc))
+                blocks.append(Util.int_floor(newloc))
                 if world.isSolidAt(newloc, l=l) is not False: break # Stop once we hit a solid block or the edge of the world.
                 if maxblocks is not None and len(blocks) >= maxblocks: break # Stop once we hit the maxblocks limit.
                 if maxdistance is not None and Util.distancePoint(loc, newloc) >= maxdistance: break # Stop once we hit the maxdistance limit.
@@ -108,7 +113,7 @@ class Util(object):
             slope = dy / dx
             x, y = loc
             while True:
-                blocks.append(Util.int_tuple((x, y)))
+                blocks.append(Util.int_floor((x, y)))
                 if world.isSolidAt((x, y), l=l) is not False: break # Stop once we hit a solid block or the edge of the world.
                 if maxblocks is not None and len(blocks) >= maxblocks: break # Stop once we hit the maxblocks limit.
                 if maxdistance is not None and Util.distancePoint(loc, (x, y)) >= maxdistance: break # Stop once we hit the maxdistance limit.
@@ -128,10 +133,10 @@ class Util(object):
     def getNearbySolidBlocks(entity):
         bb = entity.shape.getAABB(entity.body.transform, 0)
         blocks = []
-        for x in xrange(int(bb.lowerBound[0] - 1), int(bb.upperBound[0] + 2)):
-            for y in xrange(int(bb.lowerBound[1] - 1), int(bb.upperBound[1] + 2)):
+        for x in xrange(int(bb.lowerBound[0] - 2), int(bb.upperBound[0] + 2)):
+            for y in xrange(int(bb.lowerBound[1] - 2), int(bb.upperBound[1] + 2)):
                 if entity.world.isSolidAt((x, y)):
-                    blocks.append(Util.int_tuple((x, y)))
+                    blocks.append(Util.int_floor((x, y)))
         return blocks
 
 
@@ -151,13 +156,6 @@ class Util(object):
             label.text = eval(text)
             label.y = State().window.height-(number+1)*16
             label.end_update()
-
-    @staticmethod
-    def prepareDrawDebugTarget():
-        '''Prepares the mouse-targeted debug block to be drawn'''
-
-        State().debugTarget.position = Util.blocksToPixels(Util.pixelsToBlocks(State().mouseLoc))
-        State().debugTarget.scale = Const.ZOOM
 
     @staticmethod
     def getScreenCenter():
@@ -237,43 +235,63 @@ class Util(object):
                 State().physics_edgePhysics[newEdgeCoord] = EdgePhysics(list(newEdgeCoord[0]), newEdgeCoord[1])
 
     @staticmethod
-    def prepareDrawDebugPhysicsBlocks():
-        '''Prepares physics block markers to be drawn'''
-        
+    def drawDebugPhysicsBlocks():
+        '''Highlights all blocks currently being used for physics calculations.'''
         coords = State().physics_blockCoords
-
-        # Stop drawing blocks that are no longer relevant.
-        for oldCoords in State().debugPhysicsBlocks.keys():
-            if oldCoords not in coords:
-                del State().debugPhysicsBlocks[oldCoords]
-
-        # Create new Sprite objects for blocks that are relevant (if they don't already exist).
-        for newCoords in coords:
-            if newCoords is not None and newCoords not in State().debugPhysicsBlocks:
-                newSprite = pyglet.sprite.Sprite(pyglet.image.SolidColorImagePattern(color=(255,255,0,128)).create_image(16, 16), batch=State().batch, group=State().group['debug'])
-                State().debugPhysicsBlocks[newCoords] = newSprite
-
-        # Update the properties of each Sprite.
-        for coords, sprite in State().debugPhysicsBlocks.iteritems():
-            sprite.position = Util.blocksToPixels(coords)
-            sprite.scale = Const.ZOOM
+        for coord in coords:
+            points = [Util.blocksToPixels(point) for point in Util.blockToSquarePoints(coord)]
+            Util.drawPolygonHighlight(points, Const.COLORS['DEBUG_PHYSICS_BLOCK_HIGHLIGHT'])
 
     @staticmethod
-    def drawDebugPhysicsEntities():
-        '''Draws entity hitboxes for debugging.'''
-        
-        allEntities = [State().player]
+    def drawDebugPhysicsBlockHitboxes():
+        '''Draws the hitboxes of all blocks currently being used for physics calculations.'''
+        coords = State().physics_blockCoords
+        for coord in coords:
+            points = [Util.blocksToPixels(Util.add_tuple(coord, point)) for point in State().world.getBlockAt(coord).get('hitbox')]
+            Util.drawPolygonOutline(points, Const.COLORS['DEBUG_PHYSICS_BLOCK_HITBOX'])
 
+    @staticmethod
+    def drawDebugTargetBlock():
+        '''Highlights the currently targeted block.'''
+        coord = Util.pixelsToBlocks(State().mouseLoc)
+        points = [Util.blocksToPixels(point) for point in Util.blockToSquarePoints(coord)]
+        Util.drawPolygonHighlight(points, Const.COLORS['DEBUG_TARGET_BLOCK_HIGHLIGHT'])
+
+    @staticmethod
+    def drawDebugChunkBorders():
+        '''Draws chunk borders for debugging.'''
+        for chunk in State().world.layers[1].chunks.values():
+            chunk.drawDebugBorders()
+
+    @staticmethod
+    def drawDebugPhysicsEntityHitboxes():
+        '''Draws the hitboxes of all entities in the world.'''
+        allEntities = [State().player]
         for entity in allEntities:
-            #if Util.isBlockOnScreen(entity.body.position):
-            hitbox = [Util.blocksToPixels(Util.add_tuple(entity.body.position, coords)) for coords in entity.shape.vertices]
-            datalist = Util.createGLDataList(hitbox, (255,0,255,64))
-            pyglet.graphics.draw(len(hitbox), pyglet.gl.GL_POLYGON, *datalist)
+            entity.drawDebugHitbox()
 
     @staticmethod
     def createGLDataList(points, color):
         datalist = (('v2f', sum(points, ())), ('c4B', color * len(points)))
         return datalist
+
+    @staticmethod
+    def drawPolygonOutline(points, color):
+        '''Draws the outline of a polygon defined by the given points in pixel coordinates.'''
+        for (a, b) in Util.polygonPointsToLines(points):
+            data = Util.createGLDataList((a, b), color)
+            pyglet.graphics.draw(2, pyglet.gl.GL_LINES, *data)
+
+    @staticmethod
+    def drawPolygonHighlight(points, color):
+        '''Draws a filled polygon defined by the given points in pixel coordinates.'''
+        data = Util.createGLDataList(points, color)
+        pyglet.graphics.draw(len(points), pyglet.gl.GL_POLYGON, *data)
+
+    @staticmethod
+    def blockToSquarePoints((x, y)):
+        '''Returns a list of points that describe the square at the given coordinates.'''
+        return [(x, y), (x+1, y), (x+1, y+1), (x, y+1)]
 
     @staticmethod
     def polygonPointsToLines(polygon):

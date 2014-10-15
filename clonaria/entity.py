@@ -64,3 +64,8 @@ class Entity(object):
         elif self.stillJumping and self.curJumpTicks > 0 and self.vy > 0: # We are continuing an old jump
             self.curJumpTicks -= 1
             self.body.apply_impulse(Const.ACCELERATION_JUMP_HOLD * self.maxJumpTicks / (self.maxJumpTicks - self.curJumpTicks))
+
+    def drawDebugHitbox(self):
+        bPoints = [(Util.add_tuple(self.body.position, self.offset, point)) for point in self.model.get('hitbox')]
+        pPoints = [Util.blocksToPixels(point) for point in bPoints]
+        Util.drawPolygonOutline(pPoints, Const.COLORS['DEBUG_ENTITY_HITBOX'])
