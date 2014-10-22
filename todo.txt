@@ -35,13 +35,13 @@
     - Blocks and entities can easily have friction applied in settings, but good defaults need to be set.
     - Box2D might have an air resistance system built-in.  Research required.
     - Figure out a way to have max speeds for entities.
+- Improve graphics performance by generating an image of the onscreen blocks and just drawing that every frame?  Then regenerate the image whenever a block is changed.
 
 Current Tasks:
-    - Separate the world into chunks.  64x64 blocks, perhaps?
-        - Read http://0fps.net/2012/01/14/an-analysis-of-minecraft-like-engines/
-        - Only load chunks that are in use by the player or other entities, or are being modified for some reason.
-        - How to generate the world if the whole thing is too big to be loaded at once?  Perhaps generate chunks as you first encounter them, like in Minecraft.
-            - How do I do this?
-                - Perhaps write a single-block generator function that, given a seed and location, will return the block that is supposed to be generated there.  Generate the world by using this function iterated over whatever area is necessary.
-        - Generate world with a seed, and have deterministic generation.  Perhaps the possibility of infinite worlds?
-        - Requires more research!
+    - World stuff!
+        - Improve world generation using cellular automata?
+            - Make it deterministic and make chunk borders line up by generating rectangular areas of the map at once.  Each block in the area will start as a certain "random" block (e.g. air or dirt) using a generator seeded with its x and y coordinates in combination with the world seed.  Then, the entire area is iterated upon maybe about 5 times, where in each iteration, each block will become dirt if there are 4 or more neighboring dirt blocks, and become air otherwise.  To make sure this works on the edges, the neighboring area (5 blocks out in each direction for 5 iterations) is also temporarily generated for use in the iterations, and the edges of that area loop around to the other side.  Since changes ripple out at a rate of 1 block per iteration, as long as the temporary area is at least as far out as the number of iterations, its edges (that loop around) shouldn't affect the middle area, so it will be continuous with neighboring chunks rather than itself looped around.
+        - Figure out how to save and load chunks.
+            - Perhaps make a "watcher" process that predicts which chunks will be needed and saves/loads chunks accordingly.  This keeps it out of the main process.  The actual disk I/O will need to be in a new thread/process anyway so the game doesn't freeze when loading chunks.  This process will also generate chunks as needed.  Due to the Global Interpreter Lock, threads aren't really a viable option since it would need to do a lot of processing that can't stop the main thread, so it must be a whole new process.  It will transfer data to the main process by pickling the world data and sending it over a pipe or socket.
+        - Figure out disk format of world data.
+            - Try and reduce number of file handles by combining multiple chunks into each file?
