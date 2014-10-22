@@ -179,12 +179,25 @@ class Util(object):
         return (bx, by)
 
     @staticmethod
-    def isBlockOnScreen((x, y)):
-        '''Returns True if the block at the given coordinates is on the screen.'''
+    def getOnscreenBlocks():
+        '''Returns a list of (x, y) coordinates to all blocks that are onscreen.'''
+        window = State().window
         camX, camY = State().cameraPos
-        blocksOutHor = State().window.width / 2 / Const.ZOOM / Const.PPB + 1
-        blocksOutVert = State().window.height / 2 / Const.ZOOM / Const.PPB + 1
-        return x >= int(camX - blocksOutHor) and x < int(camX + blocksOutHor) and y >= int(camY - blocksOutVert) and y < int(camY + blocksOutVert)
+        blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1
+        blocksOutVert = window.height / 2 / Const.ZOOM / Const.PPB + 1
+
+        blocks = []
+
+        for y in xrange(int(camY - blocksOutVert), int(camY + blocksOutVert)):
+            for x in xrange(int(camX - blocksOutHor), int(camX + blocksOutHor)):
+                blocks.append((x, y))
+
+        return blocks
+
+    @staticmethod
+    def isBlockOnScreen(coords):
+        '''Returns True if the block at the given coordinates is on the screen.'''
+        return coords in Util.getOnscreenBlocks()
 
     @staticmethod
     def getChunkAt((x, y)):

@@ -196,30 +196,27 @@ class WorldLayer(object):
 
     def prepareDraw(self):
         '''Prepares all blocks in the viewing window to be drawn to the screen.'''
-        window = State().window
-        camX, camY = State().cameraPos
-        blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1
-        blocksOutVert = window.height / 2 / Const.ZOOM / Const.PPB + 1
         batch = State().batch
 
-        for y in xrange(int(camY - blocksOutVert), int(camY + blocksOutVert)):
-            for x in xrange(int(camX - blocksOutHor), int(camX + blocksOutHor)):
-                if self.isValidCoords((x, y)):
-                    block = self.getBlockAt((x, y))
-                    if block.get('type') != 'air':
-                        sx, sy = Util.blocksToPixels((x, y))
-                        if (x, y) in self.blockSprites:
-                            oldSprite = self.blockSprites[x, y]
-                            oldSprite.position = sx, sy
-                            oldSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
-                        else:
-                            newSprite = pyglet.sprite.Sprite(self.getBlockAt((x, y)).get('texture'), x=sx, y=sy, batch=batch, group=State().group['layer1'])
-                            newSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
-                            self.blockSprites[x, y] = newSprite
+        onscreenBlocks = Util.getOnscreenBlocks()
+
+        for (x, y) in onscreenBlocks:
+            if self.isValidCoords((x, y)):
+                block = self.getBlockAt((x, y))
+                if block.get('type') != 'air':
+                    sx, sy = Util.blocksToPixels((x, y))
+                    if (x, y) in self.blockSprites:
+                        oldSprite = self.blockSprites[x, y]
+                        oldSprite.position = sx, sy
+                        oldSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
+                    else:
+                        newSprite = pyglet.sprite.Sprite(block.get('texture'), x=sx, y=sy, batch=batch, group=State().group['layer1'])
+                        newSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
+                        self.blockSprites[x, y] = newSprite
 
         # Cull blocks sprites that don't need to be drawn.
         for pos in self.blockSprites.keys():
-            if not Util.isBlockOnScreen(pos):
+            if pos not in onscreenBlocks:
                 del self.blockSprites[pos]
 
 class Chunk(object):
