@@ -2,6 +2,8 @@ Clonaria
 ========
 Clonaria is an open source sidescrolling block-based platformer inspired by [Terraria](http://terraria.org/) written in Python that is intended to serve as a fun programming exercise and learning experience.  This is not meant to be "good" code; while cleaniness and flexibility are goals, the primary focus is on exploring both Python itself and the concepts behind game development.  Pull requests are welcome!
 
+Currently, Clonaria is known only to support Linux.  It has not been tested on Mac or Windows.
+
 The original Java version of Clonaria has been renamed to [Clonaria-Java](https://github.com/rettigs/clonaria-java) and there are no plans to update it any further.
 
 System Dependencies
@@ -12,12 +14,12 @@ System Dependencies
 
 Installation
 ------------
-    # In a virtualenv or as root:
-    git clone https://github.com/rettigs/clonaria.git
-    cd clonaria
-    pip install -r requirements.txt
-    cd clonaria
-    ./main.py
+    In a virtualenv or as root:
+    $ git clone https://github.com/rettigs/clonaria.git
+    $ cd clonaria
+    $ pip install -r requirements.txt
+    $ cd clonaria
+    $ ./main.py
 
 Controls
 --------
