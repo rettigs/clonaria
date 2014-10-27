@@ -21,7 +21,8 @@ class Util(object):
         helpLines = [
             ("-h, --help", "Shows this help."),
             ("-d", "Displays debug information in-game."),
-            ("--worldtype TYPE", "Choose a world type to generate.  Options: {}".format(Const.WORLD_TYPES))
+            ("--worldtype TYPE", "Choose a world type to generate. Options: {}".format(Const.WORLD_TYPES)),
+            ("--seed STRING", "Specify a world seed to use. Uses system time by default.")
         ]
         for line in helpLines:
             print "{:<16}\t{}".format(*line)

@@ -19,7 +19,6 @@ class State(Singleton):
         # Game world variables
         self.space = None
         self.world = None
-        self.worldType = 'NORMAL'
         self.player = None
         self.physics_blockCoords = []
         self.physics_edgeCoords = []

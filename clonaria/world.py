@@ -1,6 +1,7 @@
 from __future__ import division
 
 import random as rand
+import time
 
 from const import *
 from state import *
@@ -10,9 +11,10 @@ from worldlayer import *
 class World(object):
     '''Represents a game world as a list of WorldLayers.'''
 
-    def __init__(self, name, worldType='NORMAL'):
+    def __init__(self, name, worldType='NORMAL', seed=time.time()):
         self.name = name
         self.worldType = worldType
+        self.seed = seed
         self.layers = [WorldLayer(self, l) for l in xrange(Const.NUM_LAYERS)]
         
         if self.worldType == 'SINE':

@@ -112,14 +112,13 @@ class WorldLayer(object):
         blocks = [[air for x in xrange(w)] for y in xrange(h)]
         for x in xrange(w):
             for y in xrange(h):
-                rand.seed((x1+x, y1+y))
+                rand.seed((x1+x, y1+y, self.world.seed))
                 if rand.random() <= Const.WORLDGEN_AIR_PROBABILITY:
                     blocks[x][y] = air
                 else:
                     blocks[x][y] = dirt
 
         for i in xrange(iters+1):
-            print "iter", i
             blocks = self.cellIter(blocks)
 
         trimmedBlocks = [[None for x in xrange(tw)] for y in xrange(th)]

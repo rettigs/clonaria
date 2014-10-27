@@ -18,10 +18,12 @@ from world import *
 
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "dh", ["help", "worldtype="])
+        opts, args = getopt.getopt(sys.argv[1:], "dh", ["help", "worldtype=", "seed="])
     except getopt.GetoptError as err:
         print str(err)
         sys.exit(2)
+
+    worldOpts = {}
 
     for o, a in opts:
         if o == "-d":
@@ -30,7 +32,9 @@ if __name__ == '__main__':
             Util.showHelp()
             exit()
         elif o == "--worldtype":
-            State().worldType = a
+            worldOpts['worldType'] = a
+        elif o == "--seed":
+            worldOpts['seed'] = a
 
     State().window = window = pyglet.window.Window(caption=Const.GAME_NAME, resizable=True)
 
@@ -39,7 +43,7 @@ if __name__ == '__main__':
 
     State().space = b2World(gravity=(0.0, -Const.ACCELERATION_GRAVITY), doSleep=True)
 
-    State().world = world = World("world1", worldType=State().worldType)
+    State().world = world = World("world1", **worldOpts)
 
     State().player = player = Player(State().entityModels['player'], world, (0, 10))
 
