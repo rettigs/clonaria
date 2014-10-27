@@ -33,7 +33,7 @@ class Const(object):
     # World generation constants
     WORLDGEN_AIR_PROBABILITY = 0.40
     WORLDGEN_MIN_NEARBY_AIR_BLOCKS = 4
-    WORLDGEN_CELL_ITERS = 5
+    WORLDGEN_CELL_ITERS = 7
 
     # Predefined colors for certain drawables
     COLORS = dict(

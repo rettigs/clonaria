@@ -48,3 +48,5 @@ Current Tasks:
         - Figure out disk format of world data.
             - Read http://0fps.net/2012/01/14/an-analysis-of-minecraft-like-engines/
             - Try and reduce number of file handles by combining multiple chunks into each file?
+        - Use numpy matrices for world data?
+            - This might make the cellular automata world generation easier by allowing for easier growing and shrinking.

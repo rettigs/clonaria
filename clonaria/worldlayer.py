@@ -103,8 +103,8 @@ class WorldLayer(object):
     def generateRect(self, (x1, y1), (x2, y2)):
         '''Generates or regenerates all blocks in the rectangle defined by the given lower left and upper right block coordinates.  The upper right block is not included.'''
         iters = Const.WORLDGEN_CELL_ITERS
-        w = x2-x1+iters*2
-        h = y2-y1+iters*2
+        w = x2-x1+iters*4
+        h = y2-y1+iters*4
         tw = x2-x1
         th = y2-y1
         air = State().blockModels['air']
@@ -125,7 +125,7 @@ class WorldLayer(object):
         trimmedBlocks = [[None for x in xrange(tw)] for y in xrange(th)]
         for x in xrange(tw):
             for y in xrange(th):
-                trimmedBlocks[x][y] = blocks[iters+x][iters+y]
+                trimmedBlocks[x][y] = blocks[iters*2+x][iters*2+y]
 
         return trimmedBlocks
 
