@@ -14,9 +14,6 @@
 - Double buffer all AI/entire world?  This will require lots of resources and/or refactoring, so only do it if I encounter or think of major problems.
 - process entity AI/liquids concurrently?  This should be easier to do if we double buffer them, and may be important if they're intensive and/or numerous.
 - Use command classes to make AI simpler (they move the same way a player does, just with artificially generated commands instead of keyboard-generated ones): http://gameprogrammingpatterns.com/command.html
-- Better world generation
-    - Implement terrain by randomizing height of middle and edges, then recursively between each point whilst stepping down the range until single-block granularity is reached.
-    - Implement caves/tunnels by spawning random lines of random length that recursively eat away blocks according to a random TTL so we get tunnels of variable width.  Each tunnel may also spawn additional tunnels either from the ends (more common) or random points in the middle (less common).  Constants dictating the ranges of these random numbers can be customized for certain biomes upon world generation.
 - Use event-based paradigms?  This requires more research to know if this would be good for a game.
 - Implement biomes (effects won't be visible until I also implement music, background scenery, and mobs).
     - A single area can be in multiple biomes at once if there are enough biome-specific blocks of each type nearby.
@@ -36,12 +33,18 @@
     - Box2D might have an air resistance system built-in.  Research required.
     - Figure out a way to have max speeds for entities.
 - Improve graphics performance by generating an image of the onscreen blocks and just drawing that every frame?  Then regenerate the image whenever a block is changed.
+- Make blocks use different textures based on surrounding blocks
+    - Read http://www.saltgames.com/2010/a-bitwise-method-for-applying-tilemaps/
 
 Current Tasks:
     - World stuff!
         - Improve world generation using cellular automata?
+            - Read http://www.roguebasin.com/index.php?title=Cellular_Automata_Method_for_Generating_Random_Cave-Like_Levels
+            - Read http://gamedev.stackexchange.com/questions/70529/how-can-i-randomly-generate-2d-tile-based-side-scroller-terrain
+            - Look into http://www.reddit.com/r/gamedev/comments/2ieqvm/2d_and_4d_implementations_of_opensimplex_noise/
             - Make it deterministic and make chunk borders line up by generating rectangular areas of the map at once.  Each block in the area will start as a certain "random" block (e.g. air or dirt) using a generator seeded with its x and y coordinates in combination with the world seed.  Then, the entire area is iterated upon maybe about 5 times, where in each iteration, each block will become dirt if there are 4 or more neighboring dirt blocks, and become air otherwise.  To make sure this works on the edges, the neighboring area (5 blocks out in each direction for 5 iterations) is also temporarily generated for use in the iterations, and the edges of that area loop around to the other side.  Since changes ripple out at a rate of 1 block per iteration, as long as the temporary area is at least as far out as the number of iterations, its edges (that loop around) shouldn't affect the middle area, so it will be continuous with neighboring chunks rather than itself looped around.
         - Figure out how to save and load chunks.
             - Perhaps make a "watcher" process that predicts which chunks will be needed and saves/loads chunks accordingly.  This keeps it out of the main process.  The actual disk I/O will need to be in a new thread/process anyway so the game doesn't freeze when loading chunks.  This process will also generate chunks as needed.  Due to the Global Interpreter Lock, threads aren't really a viable option since it would need to do a lot of processing that can't stop the main thread, so it must be a whole new process.  It will transfer data to the main process by pickling the world data and sending it over a pipe or socket.
         - Figure out disk format of world data.
+            - Read http://0fps.net/2012/01/14/an-analysis-of-minecraft-like-engines/
             - Try and reduce number of file handles by combining multiple chunks into each file?
