@@ -85,7 +85,7 @@ class Util(object):
 
     @staticmethod
     def int_floor(a):
-        return tuple(map(math.floor, a))
+        return tuple(map(int, map(math.floor, a)))
 
     @staticmethod
     def getLineOfSightBlocks((dx, dy), world, loc, l=1, maxblocks=None, maxdistance=None):
@@ -139,6 +139,16 @@ class Util(object):
                     blocks.append(Util.int_floor((x, y)))
         return blocks
 
+    @staticmethod
+    def getSurroundingBlocks(coords, r=1):
+        '''Returns the blocks around (in square formation) the given block coordinates within the given range r, not including the center block.'''
+        x, y = Util.int_floor(coords)
+        blocks = []
+        for bx in xrange(x-r, x+r+1):
+            for by in xrange(y-r, y+r+1):
+                blocks.append((bx, by))
+        blocks.remove(coords)
+        return blocks
 
     @staticmethod
     def addDebugStats(texts):
@@ -179,6 +189,21 @@ class Util(object):
         return (bx, by)
 
     @staticmethod
+    def blocksToChunks((x, y)):
+        '''Returns the coordinates of the chunk containing the block at the given coords.  Does not guarantee that the chunk exists, just that that block would mathematically be there.'''
+        return (x//Const.CHUNK_SIZE, y//Const.CHUNK_SIZE)
+
+    @staticmethod
+    def chunksToBlocks((x, y)):
+        '''Returns the coordinates of the lower-left-most block in the chunk at the given chunk coords.'''
+        return (x*Const.CHUNK_SIZE, y*Const.CHUNK_SIZE)
+
+    @staticmethod
+    def getInChunkCoords((x, y)):
+        '''Returns the in-chunk coordinates of the block at the given coords.  Does not guarantee that the chunk exists, just that that block would mathematically be there.'''
+        return (x%Const.CHUNK_SIZE, y%Const.CHUNK_SIZE)
+
+    @staticmethod
     def getOnscreenBlocks():
         '''Returns a list of (x, y) coordinates to all blocks that are onscreen.'''
         window = State().window
@@ -198,16 +223,6 @@ class Util(object):
     def isBlockOnScreen(coords):
         '''Returns True if the block at the given coordinates is on the screen.'''
         return coords in Util.getOnscreenBlocks()
-
-    @staticmethod
-    def getChunkAt((x, y)):
-        '''Returns the coordinates of the chunk containing the block at the given coords.  Does not guarantee that the chunk exists, just that that block would mathematically be there.'''
-        return (x//Const.CHUNK_SIZE, y//Const.CHUNK_SIZE)
-
-    @staticmethod
-    def getInChunkCoords((x, y)):
-        '''Returns the in-chunk coordinates of the block at the given coords.  Does not guarantee that the chunk exists, just that that block would mathematically be there.'''
-        return (x%Const.CHUNK_SIZE, y%Const.CHUNK_SIZE)
 
     @staticmethod
     def physics_getBlockCoords(entities):

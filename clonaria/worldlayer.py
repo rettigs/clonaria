@@ -1,5 +1,7 @@
 from __future__ import division
 
+import random as rand
+
 import pyglet
 
 from chunk import *
@@ -32,12 +34,12 @@ class WorldLayer(object):
 
     def isBlockLoaded(self, coords):
         '''Returns True if the block at the given coords is in a loaded chunk, False otherwise.'''
-        return Util.getChunkAt(coords) in self.chunks
+        return Util.blocksToChunks(coords) in self.chunks
 
     def ensureBlockLoaded(self, coords):
         '''Ensures that the given block is loaded by loading the chunk it is in if it's not already loaded.'''
         if not self.isBlockLoaded(coords):
-            return self.loadChunk(Util.getChunkAt(coords))
+            return self.loadChunk(Util.blocksToChunks(coords))
 
     def loadChunk(self, coords):
         '''Loads the chunk at the given chunk coordinates from disk, or generates it if it doesn't exist.'''
@@ -54,7 +56,7 @@ class WorldLayer(object):
 
     def getBlockAt(self, coords):
         self.ensureBlockLoaded(coords)
-        return self.chunks[Util.getChunkAt(coords)].getBlockAt(Util.getInChunkCoords(coords))
+        return self.chunks[Util.blocksToChunks(coords)].getBlockAt(Util.getInChunkCoords(coords))
 
     def setBlockAt(self, blockType, coords):
         self.ensureBlockLoaded(coords)
@@ -62,29 +64,80 @@ class WorldLayer(object):
         if coords in self.blockSprites:
             del self.blockSprites[coords]
 
-        return self.chunks[Util.getChunkAt(coords)].setBlockAt(blockType, Util.getInChunkCoords(coords))
+        return self.chunks[Util.blocksToChunks(coords)].setBlockAt(blockType, Util.getInChunkCoords(coords))
 
     def setBlockAtUnsafe(self, blockType, coords):
-        return self.chunks[Util.getChunkAt(coords)].setBlockAt(blockType, Util.getInChunkCoords(coords))
+        return self.chunks[Util.blocksToChunks(coords)].setBlockAt(blockType, Util.getInChunkCoords(coords))
 
     def isEmptyAt(self, coords):
         self.ensureBlockLoaded(coords)
-        return self.chunks[Util.getChunkAt(coords)].isEmptyAt(Util.getInChunkCoords(coords))
+        return self.chunks[Util.blocksToChunks(coords)].isEmptyAt(Util.getInChunkCoords(coords))
 
     def isSolidAt(self, coords):
         self.ensureBlockLoaded(coords)
-        return self.chunks[Util.getChunkAt(coords)].isSolidAt(Util.getInChunkCoords(coords))
+        return self.chunks[Util.blocksToChunks(coords)].isSolidAt(Util.getInChunkCoords(coords))
 
-    def generateChunk(self, (x, y)):
+    def cellIter(self, blocks):
+        '''Given a 2D list blocks, performs a cellular automata smoothing iteration.'''
+        #expand 'blocks' out in all directions by the number of iterations to do
+
+        w = len(blocks)
+        h = len(blocks[0])
+
+        newBlocks = [[None for x in xrange(w)] for y in xrange(h)]
+        air = State().blockModels['air']
+        dirt = State().blockModels['dirt']
+        for x in xrange(w):
+            for y in xrange(h):
+                numAir = 0
+                for (bx, by) in Util.getSurroundingBlocks((x, y)):
+                    if blocks[bx%w][by%h] is air:
+                        numAir += 1
+                if numAir >= Const.WORLDGEN_MIN_NEARBY_AIR_BLOCKS:
+                    newBlocks[bx%w][by%h] = air
+                else:
+                    newBlocks[bx%w][by%h] = dirt
+
+        return newBlocks
+
+    def generateRect(self, (x1, y1), (x2, y2)):
+        '''Generates or regenerates all blocks in the rectangle defined by the given lower left and upper right block coordinates.  The upper right block is not included.'''
+        iters = Const.WORLDGEN_CELL_ITERS
+        w = x2-x1+iters*2
+        h = y2-y1+iters*2
+        tw = x2-x1
+        th = y2-y1
+        air = State().blockModels['air']
+        dirt = State().blockModels['dirt']
+        blocks = [[air for x in xrange(w)] for y in xrange(h)]
+        for x in xrange(w):
+            for y in xrange(h):
+                rand.seed((x1+x, y1+y))
+                if rand.random() <= Const.WORLDGEN_AIR_PROBABILITY:
+                    blocks[x][y] = air
+                else:
+                    blocks[x][y] = dirt
+
+        for i in xrange(iters+1):
+            print "iter", i
+            blocks = self.cellIter(blocks)
+
+        trimmedBlocks = [[None for x in xrange(tw)] for y in xrange(th)]
+        for x in xrange(tw):
+            for y in xrange(th):
+                trimmedBlocks[x][y] = blocks[iters+x][iters+y]
+
+        return trimmedBlocks
+
+    def generateChunk(self, coords):
         '''Generates all blocks in the chunk at the given coords.'''
-        self.chunks[(x, y)] = Chunk(self.world, self, (x, y))
+        self.chunks[coords] = Chunk(self.world, self, coords)
 
-        wx = x * Const.CHUNK_SIZE
-        wy = y * Const.CHUNK_SIZE
-        for dx in xrange(Const.CHUNK_SIZE):
-            for dy in xrange(Const.CHUNK_SIZE):
-                # Add world coordinates of chunk to in-chunk coords of each block to get world coordinates of each block.
-                self.generateBlock((wx+dx, wy+dy))
+        bx, by = Util.chunksToBlocks(coords)
+        newBlocks = self.generateRect((bx, by), (bx+Const.CHUNK_SIZE, by+Const.CHUNK_SIZE))
+        for x in xrange(Const.CHUNK_SIZE):
+            for y in xrange(Const.CHUNK_SIZE):
+                self.setBlockAtUnsafe(newBlocks[x][y], (bx+x, by+y))
 
     def generateBlock(self, (x, y)):
         '''Generates the block at the given coords.'''

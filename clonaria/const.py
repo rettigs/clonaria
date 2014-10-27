@@ -13,7 +13,7 @@ class Const(object):
     BLOCK_SCALE = 2
     ZOOM = 1
     NUM_LAYERS = 5
-    CHUNK_SIZE = 256
+    CHUNK_SIZE = 64
     ACCELERATION_GRAVITY = 4000 / TPS
     ACCELERATION_WALK = ACCELERATION_GRAVITY / 10
     ACCELERATION_JUMP = ACCELERATION_GRAVITY / 4
@@ -29,6 +29,11 @@ class Const(object):
 
     # World types
     WORLD_TYPES = ['NORMAL', 'FLAT', 'SINE']
+
+    # World generation constants
+    WORLDGEN_AIR_PROBABILITY = 0.40
+    WORLDGEN_MIN_NEARBY_AIR_BLOCKS = 4
+    WORLDGEN_CELL_ITERS = 5
 
     # Predefined colors for certain drawables
     COLORS = dict(
