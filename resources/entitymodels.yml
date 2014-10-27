@@ -37,4 +37,4 @@ light: 0
 defaultmodeltype: default
 ---
 type: player
-hitbox: '[(0, 0), (32, 0), (32, 48), (0, 48)]'
+hitbox: '[(0.5, 0.5), (31.5, 0.5), (31.5, 47.5), (0.5, 47.5)]'
