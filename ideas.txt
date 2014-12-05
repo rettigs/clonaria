@@ -82,3 +82,6 @@ Movement item progression:
     - Endgame:
         - Better Magnet Gun
         - Flying: Wings / Jetpack
+
+Enemy Loot Drop System:
+    - Rather than "rolling the dice" every time a monster dies to see if an item drops, create a global counter for each item that is initialized to a random number (say, between 50 and 150 if the item normally would have been a 1% chance of dropping).  Every time an enemy that can drop that item dies, the counter is decremented until it hits 0, at which point the item finally drops.  This system has the advantage of pacing drops while still making them feel "random".  With the dice roll system, it's possible to get the item on the first monster kill, or to get the item 3 times in a row, or to never get the item even after hours of grinding.
