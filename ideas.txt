@@ -85,3 +85,11 @@ Movement item progression:
 
 Enemy Loot Drop System:
     - Rather than "rolling the dice" every time a monster dies to see if an item drops, create a global counter for each item that is initialized to a random number (say, between 50 and 150 if the item normally would have been a 1% chance of dropping).  Every time an enemy that can drop that item dies, the counter is decremented until it hits 0, at which point the item finally drops.  This system has the advantage of pacing drops while still making them feel "random".  With the dice roll system, it's possible to get the item on the first monster kill, or to get the item 3 times in a row, or to never get the item even after hours of grinding.
+
+Testing ideas:
+    - Do integration tests by simply running a wrapper script that runs the game and performs a few actions to see if the game crashes.
+        - Use a wrapper instead of having it be a run option so that it doesn't affect the main code or slow down normal game execution.
+            - Do debug the same way?  Instead of checking "if DEBUG" all the time (which is wasteful?) set up a system where a list of stuff to do is kept and it just does everything in the list.  For debug mode, all that happens is that more stuff is added to the list.  Maybe do the tests this way as well?
+        - Could eventually add additional other than "did it crash".
+            - How?
+    - Do unit tests the same way as above? Or run them separately and pass them a dummy state object to use?

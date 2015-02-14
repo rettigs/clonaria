@@ -14,6 +14,13 @@
 - Double buffer all AI/entire world?  This will require lots of resources and/or refactoring, so only do it if I encounter or think of major problems.
 - process entity AI/liquids concurrently?  This should be easier to do if we double buffer them, and may be important if they're intensive and/or numerous.
 - Use command classes to make AI simpler (they move the same way a player does, just with artificially generated commands instead of keyboard-generated ones): http://gameprogrammingpatterns.com/command.html
+    - Refinement: create an ActionQueue object that all parts of the program use to make changes to the game world.  Upon keyboard input or something, you call actionQueue.add(function, args) and it is stored in a queue (implemented via collections.deque).  Then after all game world actions are added, each item in the queue is executed sequentially.
+        - Doing things this way also improve efficiency:
+            - Maybe makes multithreading/concurrency easier?  Maybe we 
+            - Could run in own thread and group/condense actions while the rest of the program is still generating them, with no potential for concurrency issues!
+                - Examples:
+                    - If keyboard input makes the player move left 5 units and an explosion makes the player move right 5 units, they could cancel out!
+                    - If a block is set multiple times in a tick, only the latest one needs to be performed, saving precious CPU time!
 - Use event-based paradigms?  This requires more research to know if this would be good for a game.
 - Implement biomes (effects won't be visible until I also implement music, background scenery, and mobs).
     - A single area can be in multiple biomes at once if there are enough biome-specific blocks of each type nearby.
