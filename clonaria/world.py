@@ -11,11 +11,13 @@ from worldlayer import *
 class World(object):
     '''Represents a game world as a list of WorldLayers.'''
 
-    def __init__(self, name, worldType='NORMAL', seed=time.time()):
+    def __init__(self, name, width, height, worldType='NORMAL', seed=time.time()):
         self.name = name
+        self.width = width
+        self.height = height
         self.worldType = worldType
         self.seed = seed
-        self.layers = [WorldLayer(self, l) for l in xrange(Const.NUM_LAYERS)]
+        self.layers = [WorldLayer(self, l, self.width, self.height) for l in xrange(Const.NUM_LAYERS)]
         
         if self.worldType == 'SINE':
             self.sineNumbers = []
@@ -49,10 +51,19 @@ class World(object):
         else:
             return None
 
-    def generateBlock(self, coords, l=1):
-        '''Generates the block at the given coords.'''
-        return self.layers[l].generateBlock(coords)
-        
+    def generate(self):
+        '''Generates the world.'''
+        w = self.width
+        h = self.height
+        l = self.layers[1]
+        air = State().blockModels['air']
+        dirt = State().blockModels['dirt']
+        for x in xrange(w):
+            for y in xrange(h):
+                if y > h/2:
+                    l.setBlockAt(air, (x, y))
+                else:
+                    l.setBlockAt(dirt, (x, y))
 
     def getAdjacentBlocks(self, (x, y), l=1, multiLayer=False):
         '''Returns all blocks directly adjacent to the block at the given coords.  If multiLayer is enabled, will also return the blocks behind and in front.'''

@@ -1,5 +1,7 @@
 from __future__ import division
 
+import numpy
+
 from const import *
 from state import *
 from util import *
@@ -11,7 +13,7 @@ class Chunk(object):
         self.world = world
         self.layer = layer
         self.location = location
-        self.blocks = [[None for x in xrange(Const.CHUNK_SIZE)] for y in xrange(Const.CHUNK_SIZE)]
+        self.blocks = numpy.array([[None for x in xrange(Const.CHUNK_SIZE)] for y in xrange(Const.CHUNK_SIZE)])
         self.blockData = {} # Dict with block location tuple as key and a dict of special data as the value.
 
     def getBlockAt(self, (x, y)):

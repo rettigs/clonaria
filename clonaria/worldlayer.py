@@ -1,7 +1,9 @@
 from __future__ import division
 
+import math
 import random as rand
 
+import numpy
 import pyglet
 
 from chunk import *
@@ -12,12 +14,13 @@ from util import *
 class WorldLayer(object):
     '''Represents one layer of a game world as a collection of Chunks.'''
 
-    def __init__(self, world, layer):
+    def __init__(self, world, layer, width, height):
         self.world = world
         self.layer = layer
+        self.width = width
+        self.height = height
 
-        # TODO: Make lookups more efficient than using a dictionary?  It needs to support negative indices.
-        self.chunks = {} # Dict with chunk coordinates (block coordinates / CHUNK_SIZE) as the key and the Chunk itself as the value.
+        self.chunks = numpy.array([[Chunk(self.world, self.layer, (x, y)) for x in xrange(int(math.ceil(self.width / Const.CHUNK_SIZE)))] for y in xrange(int(math.ceil(self.height / Const.CHUNK_SIZE)))])
 
         # The outermost chunks are kept track of to calculate layer size and are updated whenever a chunk is created.
         self.leftmostChunk = (0, 0)
@@ -39,11 +42,11 @@ class WorldLayer(object):
     def ensureBlockLoaded(self, coords):
         '''Ensures that the given block is loaded by loading the chunk it is in if it's not already loaded.'''
         if not self.isBlockLoaded(coords):
-            return self.loadChunk(Util.blocksToChunks(coords))
+            self.loadChunk(Util.blocksToChunks(coords))
 
     def loadChunk(self, coords):
         '''Loads the chunk at the given chunk coordinates from disk, or generates it if it doesn't exist.'''
-        return self.generateChunk(coords)
+        pass
 
     def saveChunk(self, coords):
         '''Writes the chunk at the given chunk coordinates to disk.'''

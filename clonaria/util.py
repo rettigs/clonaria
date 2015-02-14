@@ -3,6 +3,7 @@ import math
 import operator
 import os
 
+import numpy
 import pyglet
 from pyglet.gl import *
 import yaml
@@ -289,7 +290,7 @@ class Util(object):
     @staticmethod
     def drawDebugChunkBorders():
         '''Draws chunk borders for debugging.'''
-        for chunk in State().world.layers[1].chunks.values():
+        for _,chunk in numpy.ndenumerate(State().world.layers[1].chunks):
             chunk.drawDebugBorders()
 
     @staticmethod
