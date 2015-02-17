@@ -57,11 +57,11 @@ class WorldLayer(object):
         pass
 
     def getBlockAt(self, coords):
-        self.ensureBlockLoaded(coords)
+        #self.ensureBlockLoaded(coords)
         return self.chunks[Util.blocksToChunks(coords)].getBlockAt(Util.getInChunkCoords(coords))
 
     def setBlockAt(self, blockType, coords):
-        self.ensureBlockLoaded(coords)
+        #self.ensureBlockLoaded(coords)
 
         if coords in self.blockSprites:
             del self.blockSprites[coords]
@@ -78,91 +78,6 @@ class WorldLayer(object):
     def isSolidAt(self, coords):
         self.ensureBlockLoaded(coords)
         return self.chunks[Util.blocksToChunks(coords)].isSolidAt(Util.getInChunkCoords(coords))
-
-    def cellIter(self, blocks):
-        '''Given a 2D list blocks, performs a cellular automata smoothing iteration.'''
-        #expand 'blocks' out in all directions by the number of iterations to do
-
-        w = len(blocks)
-        h = len(blocks[0])
-
-        newBlocks = [[None for x in xrange(w)] for y in xrange(h)]
-        air = State().blockModels['air']
-        dirt = State().blockModels['dirt']
-        for x in xrange(w):
-            for y in xrange(h):
-                numAir = 0
-                for (bx, by) in Util.getSurroundingBlocks((x, y)):
-                    if blocks[bx%w][by%h] is air:
-                        numAir += 1
-                if numAir >= Const.WORLDGEN_MIN_NEARBY_AIR_BLOCKS:
-                    newBlocks[bx%w][by%h] = air
-                else:
-                    newBlocks[bx%w][by%h] = dirt
-
-        return newBlocks
-
-    def generateRect(self, (x1, y1), (x2, y2)):
-        '''Generates or regenerates all blocks in the rectangle defined by the given lower left and upper right block coordinates.  The upper right block is not included.'''
-        iters = Const.WORLDGEN_CELL_ITERS
-        w = x2-x1+iters*4
-        h = y2-y1+iters*4
-        tw = x2-x1
-        th = y2-y1
-        air = State().blockModels['air']
-        dirt = State().blockModels['dirt']
-        blocks = [[air for x in xrange(w)] for y in xrange(h)]
-        for x in xrange(w):
-            for y in xrange(h):
-                rand.seed((x1+x, y1+y, self.world.seed))
-                if rand.random() <= Const.WORLDGEN_AIR_PROBABILITY:
-                    blocks[x][y] = air
-                else:
-                    blocks[x][y] = dirt
-
-        for i in xrange(iters+1):
-            blocks = self.cellIter(blocks)
-
-        trimmedBlocks = [[None for x in xrange(tw)] for y in xrange(th)]
-        for x in xrange(tw):
-            for y in xrange(th):
-                trimmedBlocks[x][y] = blocks[iters*2+x][iters*2+y]
-
-        return trimmedBlocks
-
-    def generateChunk(self, coords):
-        '''Generates all blocks in the chunk at the given coords.'''
-        self.chunks[coords] = Chunk(self.world, self, coords)
-
-        bx, by = Util.chunksToBlocks(coords)
-        newBlocks = self.generateRect((bx, by), (bx+Const.CHUNK_SIZE, by+Const.CHUNK_SIZE))
-        for x in xrange(Const.CHUNK_SIZE):
-            for y in xrange(Const.CHUNK_SIZE):
-                self.setBlockAtUnsafe(newBlocks[x][y], (bx+x, by+y))
-
-    def generateBlock(self, (x, y)):
-        '''Generates the block at the given coords.'''
-        if self.world.worldType == 'FLAT':
-            if y > 0:
-                block = State().blockModels['air']
-            else:
-                block = State().blockModels['dirt']
-            return self.setBlockAtUnsafe(block, (x, y))
-        elif self.world.worldType == 'SINE':
-            height = 0
-            for s in self.world.sineNumbers:
-                height += math.sin(x/s[0])*s[1]+s[2]
-            if y > height:
-                block = State().blockModels['air']
-            else:
-                block = State().blockModels['dirt']
-            return self.setBlockAtUnsafe(block, (x, y))
-        else:
-            if y > 0:
-                block = State().blockModels['air']
-            else:
-                block = State().blockModels['dirt']
-            return self.setBlockAtUnsafe(block, (x, y))
 
     def prepareDraw(self):
         '''Prepares all blocks in the viewing window to be drawn to the screen.'''

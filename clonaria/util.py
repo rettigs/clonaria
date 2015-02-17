@@ -60,6 +60,44 @@ class Util(object):
         return blocks
 
     @staticmethod
+    def line((x0, y0), (x1, y1)):
+        '''Returns a list of all block coordinates between the two points, inclusive.'''
+        blocks = []
+
+        d = (x1 - x0, y1 - y0)
+        dx, dy = tuple(d / numpy.linalg.norm(d))
+        loc = (x0, x1)
+
+        # Special case: Direction is zero. Return current block.
+        if dx == 0 and dy == 0:
+            if world.isSolidAt(loc, l=l):
+                blocks.append(Util.int_floor(loc))
+
+        # Special case: Direction is vertical or horizontal. Add direction vector to location until solid block is found.
+        elif dx == 0 or dy == 0:
+            newloc = loc
+            while True:
+                blocks.append(Util.int_floor(newloc))
+                if world.isSolidAt(newloc, l=l) is not False: break # Stop once we hit a solid block or the edge of the world.
+                if maxblocks is not None and len(blocks) >= maxblocks: break # Stop once we hit the maxblocks limit.
+                if maxdistance is not None and Util.distancePoint(loc, newloc) >= maxdistance: break # Stop once we hit the maxdistance limit.
+                newloc = Util.add_tuple(newloc, (dx, dy))
+
+        # Otherwise, use Bresenham's line algorithm.
+        else:
+            slope = dy / dx
+            x, y = loc
+            while True:
+                blocks.append(Util.int_floor((x, y)))
+                if world.isSolidAt((x, y), l=l) is not False: break # Stop once we hit a solid block or the edge of the world.
+                if maxblocks is not None and len(blocks) >= maxblocks: break # Stop once we hit the maxblocks limit.
+                if maxdistance is not None and Util.distancePoint(loc, (x, y)) >= maxdistance: break # Stop once we hit the maxdistance limit.
+                x += dx
+                y = slope * (x - loc[0]) + loc[1]
+            
+        return blocks
+
+    @staticmethod
     def distancePoint(a, b):
          ax, ay = a
          bx, by = b
