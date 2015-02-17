@@ -30,10 +30,9 @@ class WorldLayer(object):
 
         self.blockSprites = {}
 
-    def isValidCoords(self, coords):
+    def isValidCoords(self, (x, y)):
         '''Returns True if the given block coords refer to a chunk that either can or does exist, False otherwise.'''
-        '''Currently only returns True because the world lacks any hard boundaries, so any chunk can exist.'''
-        return True
+        return 0 <= x and x < self.width and 0 <= y and y < self.height
 
     def isBlockLoaded(self, coords):
         '''Returns True if the block at the given coords is in a loaded chunk, False otherwise.'''
