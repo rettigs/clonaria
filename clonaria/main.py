@@ -43,9 +43,10 @@ if __name__ == '__main__':
 
     State().space = b2World(gravity=(0.0, -Const.ACCELERATION_GRAVITY), doSleep=True)
 
-    State().world = world = World("world1", **worldOpts)
+    State().world = world = World("world1", 400, 400, **worldOpts)
+    State().world.generate()
 
-    State().player = player = Player(State().entityModels['player'], world, (0, 10))
+    State().player = player = Player(State().entityModels['player'], world, (world.width/2, world.height/2+10))
 
     keys = key.KeyStateHandler()
     window.push_handlers(keys)

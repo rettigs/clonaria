@@ -6,21 +6,19 @@ import time
 from const import *
 from state import *
 from util import *
+from worldgen import *
 from worldlayer import *
 
 class World(object):
     '''Represents a game world as a list of WorldLayers.'''
 
-    def __init__(self, name, worldType='NORMAL', seed=time.time()):
+    def __init__(self, name, width, height, worldType='NORMAL', seed=time.time()):
         self.name = name
+        self.width = width
+        self.height = height
         self.worldType = worldType
         self.seed = seed
-        self.layers = [WorldLayer(self, l) for l in xrange(Const.NUM_LAYERS)]
-        
-        if self.worldType == 'SINE':
-            self.sineNumbers = []
-            for n in xrange(10):
-                self.sineNumbers.append((rand.randint(1, 20), rand.randint(1, 5), rand.randint(-10, 10)))
+        self.layers = [WorldLayer(self, l, self.width, self.height) for l in xrange(Const.NUM_LAYERS)]
 
     def isValidCoords(self, location, l=1):
         '''Returns True if the given block coords refer to a chunk that actually exists, False otherwise.'''
@@ -49,10 +47,21 @@ class World(object):
         else:
             return None
 
-    def generateBlock(self, coords, l=1):
-        '''Generates the block at the given coords.'''
-        return self.layers[l].generateBlock(coords)
-        
+    def generate(self):
+        '''Generates the world.'''
+        gen = WorldGen(self.width, self.height, seed=self.seed)
+        if self.worldType == 'SINE':
+            gen.fill(State().blockModels['dirt'])
+            gen.sineMask()
+        else: # Default to FLAT
+            gen.rect(State().blockModels['air'], (0, self.height//2), (self.width, self.height))
+            gen.rect(State().blockModels['dirt'], (0, 0), (self.width, self.height//2))
+
+        # Copy the worldgen array into the world
+        l = self.layers[1]
+        for x in xrange(self.width):
+            for y in xrange(self.height):
+                l.setBlockAtUnsafe(gen.a[x][y], (x, y))
 
     def getAdjacentBlocks(self, (x, y), l=1, multiLayer=False):
         '''Returns all blocks directly adjacent to the block at the given coords.  If multiLayer is enabled, will also return the blocks behind and in front.'''
