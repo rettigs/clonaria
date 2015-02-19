@@ -72,9 +72,15 @@ class World(object):
             gen.fill(State().blockModels['dirt'])
             gen.sineMask()
         elif self.worldType == 'NORMAL':
-            gen.fill(State().blockModels['dirt'])
+            gen.rect(State().blockModels['stone'], (0, 0), (self.width, int(self.height*.40)))
+            gen.rect(State().blockModels['dirt'], (0, int(self.height*.40)), (self.width, self.height))
+            gen.splotches(300, blockType=State().blockModels['sand'], minSize=5, maxSize=25)
+            gen.splotches(300, blockType=State().blockModels['gravel'], minSize=5, maxSize=12)
+            gen.splotches(2000, blockType=State().blockModels['stone'], minSize=0, maxSize=5)
+            gen.splotches(2000, blockType=State().blockModels['dirt'], minSize=0, maxSize=5)
             gen.sineMask()
             gen.genCaves(20)
+            gen.growGrass(height=int(self.height*.40))
         else: # Default to FLAT
             gen.rect(State().blockModels['air'], (0, self.height//2), (self.width, self.height))
             gen.rect(State().blockModels['dirt'], (0, 0), (self.width, self.height//2))
