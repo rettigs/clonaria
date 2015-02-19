@@ -20,10 +20,12 @@ class World(object):
         self.seed = seed
         self.layers = [WorldLayer(self, l, self.width, self.height) for l in xrange(Const.NUM_LAYERS)]
 
-    def isValidCoords(self, location, l=1):
-        '''Returns True if the given block coords refer to a chunk that actually exists, False otherwise.'''
+    def isValidCoords(self, loc, l=1):
+        '''Returns True if the given block coords refer to a chunk that actually exists, False otherwise. Layer can be specified as the third element in the location tuple or as an argument.'''
+        if len(loc) > 2:
+            loc, l = loc[:2], loc[2]
         if l >= 0 and l < len(self.layers):
-            return self.layers[l].isValidCoords(location)
+            return self.layers[l].isValidCoords(loc)
         else:
             return False
 
@@ -47,37 +49,6 @@ class World(object):
         else:
             return None
 
-    def generate(self):
-        '''Generates the world.'''
-        gen = WorldGen(self.width, self.height, seed=self.seed)
-        if self.worldType == 'SINE':
-            gen.fill(State().blockModels['dirt'])
-            gen.sineMask()
-        else: # Default to FLAT
-            gen.rect(State().blockModels['air'], (0, self.height//2), (self.width, self.height))
-            gen.rect(State().blockModels['dirt'], (0, 0), (self.width, self.height//2))
-
-        # Copy the worldgen array into the world
-        l = self.layers[1]
-        for x in xrange(self.width):
-            for y in xrange(self.height):
-                l.setBlockAtUnsafe(gen.a[x][y], (x, y))
-
-    def getAdjacentBlocks(self, (x, y), l=1, multiLayer=False):
-        '''Returns all blocks directly adjacent to the block at the given coords.  If multiLayer is enabled, will also return the blocks behind and in front.'''
-        blocks = []
-
-        checkCoords = (x+1,y,l),(x-1,y,l),(x,y+1,l),(x,y-1,l)
-        if multiLayer:
-            checkCoords.extend([(x,y,l+1),(x,y,l-1)])
-
-        for coords in checkCoords:
-            block = self.getBlockAt(coords, l=l)
-            if block is not None:
-                blocks.append(block)
-
-        return blocks
-
     def isEmptyAt(self, (x, y), l=1):
         x = int(x)
         y = int(y)
@@ -93,6 +64,26 @@ class World(object):
             return self.layers[l].isSolidAt((x, y))
         else:
             return None
+
+    def generate(self):
+        '''Generates the world.'''
+        gen = WorldGen(self.width, self.height, seed=self.seed)
+        if self.worldType == 'SINE':
+            gen.fill(State().blockModels['dirt'])
+            gen.sineMask()
+        elif self.worldType == 'NORMAL':
+            gen.fill(State().blockModels['dirt'])
+            gen.sineMask()
+            gen.genCaves(20)
+        else: # Default to FLAT
+            gen.rect(State().blockModels['air'], (0, self.height//2), (self.width, self.height))
+            gen.rect(State().blockModels['dirt'], (0, 0), (self.width, self.height//2))
+
+        # Copy the worldgen array into the world
+        l = self.layers[1]
+        for x in xrange(self.width):
+            for y in xrange(self.height):
+                l.setBlockAtUnsafe(gen.a[x][y], (x, y))
 
     def prepareDraw(self):
         #for layer in self.layers:

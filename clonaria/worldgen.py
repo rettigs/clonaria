@@ -19,6 +19,10 @@ class WorldGen(object):
         self.b = State().blockModels
         self.a = numpy.empty([self.w, self.h], dtype=type(self.b['air']))
 
+    def isValidCoords(self, (x, y)):
+        '''Returns True if the given block coords are within the world size, False otherwise.'''
+        return 0 <= x and x < self.w and 0 <= y and y < self.h
+
     def fill(self, blocktype=None):
         '''Fills the array with the given block type (air by default).'''
         if blocktype is None:
@@ -52,3 +56,36 @@ class WorldGen(object):
             for y in xrange(self.h):
                 if y > height:
                     self.a[x][y] = air
+
+    def genCaves(self, count=1):
+        for i in xrange(count):
+            self.genCave()
+
+    def genCave(self):
+
+        # Generate parameters randomly
+        # TODO: put in const.py
+        expansions = int(rand.triangular(3, 10, 3)) # Iterations to perform
+        chance = rand.uniform(.50, .80) # Likelihood of a cave block expanding into a neighbor
+
+        # Start the cave as a random line
+        x0 = rand.randint(0, self.w)
+        x1 = rand.randint(0, self.w)
+        y0 = rand.randint(0, self.h)
+        y1 = rand.randint(0, self.h)
+        points = set(Util.line((x0, y0), (x1, y1)))
+
+        # Perform cave expansion iterations
+        for e in xrange(expansions):
+            newpoints = set()
+            for p in points:
+                for ap in Util.getAdjacentCoords(p, world=self):
+                    if rand.random() < chance:
+                        newpoints.add(ap)
+            points |= newpoints
+
+        # Set all cave blocks to air
+        air = self.b['air']
+        for p in points:
+            if self.isValidCoords(p):
+                self.a[p] = air

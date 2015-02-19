@@ -60,48 +60,66 @@ class Util(object):
         return blocks
 
     @staticmethod
-    def line((x0, y0), (x1, y1)):
-        '''Returns a list of all block coordinates between the two points, inclusive.'''
-        blocks = []
-
-        d = (x1 - x0, y1 - y0)
-        dx, dy = tuple(d / numpy.linalg.norm(d))
-        loc = (x0, x1)
-
-        # Special case: Direction is zero. Return current block.
-        if dx == 0 and dy == 0:
-            if world.isSolidAt(loc, l=l):
-                blocks.append(Util.int_floor(loc))
-
-        # Special case: Direction is vertical or horizontal. Add direction vector to location until solid block is found.
-        elif dx == 0 or dy == 0:
-            newloc = loc
-            while True:
-                blocks.append(Util.int_floor(newloc))
-                if world.isSolidAt(newloc, l=l) is not False: break # Stop once we hit a solid block or the edge of the world.
-                if maxblocks is not None and len(blocks) >= maxblocks: break # Stop once we hit the maxblocks limit.
-                if maxdistance is not None and Util.distancePoint(loc, newloc) >= maxdistance: break # Stop once we hit the maxdistance limit.
-                newloc = Util.add_tuple(newloc, (dx, dy))
-
-        # Otherwise, use Bresenham's line algorithm.
-        else:
-            slope = dy / dx
-            x, y = loc
-            while True:
-                blocks.append(Util.int_floor((x, y)))
-                if world.isSolidAt((x, y), l=l) is not False: break # Stop once we hit a solid block or the edge of the world.
-                if maxblocks is not None and len(blocks) >= maxblocks: break # Stop once we hit the maxblocks limit.
-                if maxdistance is not None and Util.distancePoint(loc, (x, y)) >= maxdistance: break # Stop once we hit the maxdistance limit.
-                x += dx
-                y = slope * (x - loc[0]) + loc[1]
-            
-        return blocks
+    def line((x, y), (x2, y2)):
+        '''
+        Returns a list of all block coordinates between the two points, inclusive, using Brensenham's line algorithm.
+        From http://mail.scipy.org/pipermail/scipy-user/2009-September/022602.html
+        '''
+        steep = 0
+        coords = []
+        dx = abs(x2 - x)
+        if (x2 - x) > 0: sx = 1
+        else: sx = -1
+        dy = abs(y2 - y)
+        if (y2 - y) > 0: sy = 1
+        else: sy = -1
+        if dy > dx:
+            steep = 1
+            x,y = y,x
+            dx,dy = dy,dx
+            sx,sy = sy,sx
+        d = (2 * dy) - dx
+        for i in range(0,dx):
+            if steep: coords.append((y,x))
+            else: coords.append((x,y))
+            while d >= 0:
+                y = y + sy
+                d = d - (2 * dx)
+            x = x + sx
+            d = d + (2 * dy)
+        return coords #added by me
 
     @staticmethod
     def distancePoint(a, b):
          ax, ay = a
          bx, by = b
          return math.sqrt((bx-ax)**2 + (by-ay)**2)
+
+    @staticmethod
+    def getAdjacentCoords(loc, world=None, multiLayer=False):
+        '''
+        Returns all coords directly adjacent to the given coords (i.e. left, right, above, and below).
+        If a world is specified, it will only return coordinates valid for the world.
+        This works on any "world" object that has a "isValidCoords" method, including World, WorldGen, WorldLayer, and Chunk.
+        If multiLayer is enabled, it will also return the coords behind and in front, with the layer in each tuple.
+        The layer of the input coords must be specified as the third element in the location tuple if using multiLayer.
+        '''
+        x, y = loc[:2]
+        if multiLayer:
+            l = loc[2]
+            checkCoords = [(x+1,y,l),(x-1,y,l),(x,y+1,l),(x,y-1,l),(x,y,l+1),(x,y,l-1)]
+        else:
+            checkCoords = (x+1,y),(x-1,y),(x,y+1),(x,y-1)
+
+        if world is not None:
+            validCoords = []
+            for coords in checkCoords:
+                if world.isValidCoords(coords):
+                    validCoords.append(coords)
+        else:
+            validCoords = checkCoords
+
+        return validCoords
 
     @staticmethod
     def add_tuple(*args):
