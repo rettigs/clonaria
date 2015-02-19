@@ -49,6 +49,18 @@ class World(object):
         else:
             return None
 
+    def breakBlockAt(self, coords, l=1):
+        coords = Util.int_tuple(coords)
+        if self.isEmptyAt(coords, l):
+            blockType = State().blockModels['air']
+            result = self.layers[l].setBlockAt(blockType, coords)
+            if result:
+                pass
+                # Spawn block item
+            return result
+        else:
+            return None
+
     def isEmptyAt(self, (x, y), l=1):
         x = int(x)
         y = int(y)
