@@ -20,7 +20,7 @@ class WorldLayer(object):
         self.width = width
         self.height = height
 
-        self.chunks = numpy.array([[Chunk(self.world, self.layer, (x, y)) for x in xrange(int(math.ceil(self.width / Const.CHUNK_SIZE)))] for y in xrange(int(math.ceil(self.height / Const.CHUNK_SIZE)))])
+        self.chunks = numpy.array([[Chunk(self.world, self.layer, (x, y)) for y in xrange(int(math.ceil(self.height / Const.CHUNK_SIZE)))] for x in xrange(int(math.ceil(self.width / Const.CHUNK_SIZE)))])
 
         # The outermost chunks are kept track of to calculate layer size and are updated whenever a chunk is created.
         self.leftmostChunk = (0, 0)
@@ -28,11 +28,13 @@ class WorldLayer(object):
         self.upmostChunk = (0, 0)
         self.downmostChunk = (0, 0)
 
-        self.blockSprites = {}
-
     def isValidCoords(self, (x, y)):
         '''Returns True if the given block coords refer to a chunk that either can or does exist, False otherwise.'''
         return 0 <= x and x < self.width and 0 <= y and y < self.height
+
+    def isValidChunkCoords(self, (x, y)):
+        '''Returns True if the given block coords refer to a chunk that either can or does exist, False otherwise.'''
+        return 0 <= x and x < self.width/Const.CHUNK_SIZE and 0 <= y and y < self.height/Const.CHUNK_SIZE
 
     def isBlockLoaded(self, coords):
         '''Returns True if the block at the given coords is in a loaded chunk, False otherwise.'''
@@ -63,9 +65,6 @@ class WorldLayer(object):
     def setBlockAt(self, blockType, coords):
         #self.ensureBlockLoaded(coords)
 
-        if coords in self.blockSprites:
-            del self.blockSprites[coords]
-
         return self.chunks[Util.blocksToChunks(coords)].setBlockAt(blockType, Util.getInChunkCoords(coords))
 
     def setBlockAtUnsafe(self, blockType, coords):
@@ -81,25 +80,33 @@ class WorldLayer(object):
 
     def prepareDraw(self):
         '''Prepares all blocks in the viewing window to be drawn to the screen.'''
-        batch = State().batch
+        oldVisible = State().visibleChunks
+        newVisible = Util.getOnscreenChunks()
 
-        onscreenBlocks = Util.getOnscreenBlocks()
+        justVisible = newVisible - oldVisible # All chunks that just became visible
 
-        for (x, y) in onscreenBlocks:
-            if self.isValidCoords((x, y)):
-                block = self.getBlockAt((x, y))
-                if block.get('type') != 'air':
-                    sx, sy = Util.blocksToPixels((x, y))
-                    if (x, y) in self.blockSprites:
-                        oldSprite = self.blockSprites[x, y]
-                        oldSprite.position = sx, sy
-                        oldSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
-                    else:
-                        newSprite = pyglet.sprite.Sprite(block.get('texture'), x=sx, y=sy, batch=batch, group=State().group['layer1'])
-                        newSprite.scale = Const.ZOOM * Const.BLOCK_SCALE
-                        self.blockSprites[x, y] = newSprite
+        for coords in justVisible:
+            if self.isValidChunkCoords(coords):
+                print "{} just became visible".format(coords)
+                try:
+                    self.chunks[coords].onVisible()
+                except IndexError:
+                    pass
 
-        # Cull blocks sprites that don't need to be drawn.
-        for pos in self.blockSprites.keys():
-            if pos not in onscreenBlocks:
-                del self.blockSprites[pos]
+        justInvisible = oldVisible - newVisible # All chunks that just became invisible
+
+        for coords in justInvisible: # All chunks that just became invisible
+            if self.isValidChunkCoords(coords):
+                print "{} just became invisible".format(coords)
+                try:
+                    self.chunks[coords].onInvisible()
+                except IndexError:
+                    pass
+
+        for coords in newVisible:
+            try:
+                self.chunks[coords].prepareDraw()
+            except IndexError:
+                pass
+
+        State().visibleChunks = newVisible

@@ -35,7 +35,7 @@ class WorldGen(object):
         '''Fills the array with the given block type (air by default).'''
         if blockType is None:
             blockType = self.b['air']
-        coords = [(x, y) for x in xrange(self.w) for y in xrange(self.h)]
+        coords = [(x, y) for y in xrange(self.h) for x in xrange(self.w)]
         self.setBlocks(coords, blockType)
 
     def rect(self, blockType=None, p0=None, p1=None):
@@ -45,7 +45,7 @@ class WorldGen(object):
         if p1 is None: p1 = (self.w, self.h)
         x0, y0 = p0
         x1, y1 = p1
-        coords = [(x, y) for x in xrange(x0, x1) for y in xrange(y0, y1)]
+        coords = [(x, y) for y in xrange(y0, y1) for x in xrange(x0, x1)]
         self.setBlocks(coords, blockType)
 
     def sineMask(self):
