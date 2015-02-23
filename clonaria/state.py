@@ -29,6 +29,7 @@ class State(Singleton):
         self.blockModels = None
         self.entityModels = None
         self.batch = pyglet.graphics.Batch()
+        self.visibleChunks = set()
         self.debugStats = []
         self.group = {}
         for x in xrange(Const.NUM_LAYERS):

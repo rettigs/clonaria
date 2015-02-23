@@ -283,6 +283,65 @@ class Util(object):
         return coords in Util.getOnscreenBlocks()
 
     @staticmethod
+    def isBlockOnScreen2((x, y)):
+        '''Returns True if the block at the given coordinates is on the screen.'''
+        window = State().window
+        camX, camY = State().cameraPos
+        blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1
+        blocksOutVert = window.height / 2 / Const.ZOOM / Const.PPB + 1
+
+        xmin = int(camX - blocksOutHor)
+        xmax = int(camX + blocksOutHor)
+        ymin = int(camY - blocksOutVert)
+        ymax = int(camY + blocksOutVert)
+
+        return xmin < x and x < xmax and ymin < y and y < ymax
+
+    @staticmethod
+    def getOnscreenChunks(world):
+        '''Returns a list of (x, y) coordinates to all chunks that are onscreen. Uses world.width and world.height to validate the coords.'''
+        window = State().window
+        camX, camY = State().cameraPos
+        blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1
+        blocksOutVert = window.height / 2 / Const.ZOOM / Const.PPB + 1
+
+        chunks = set()
+
+        xmin = int(max(camX - blocksOutHor, 0))
+        xmax = int(min(camX + blocksOutHor, world.width))
+        ymin = int(max(camY - blocksOutVert, 0))
+        ymax = int(min(camY + blocksOutVert, world.height))
+
+        for y in xrange(ymin, ymax+Const.CHUNK_SIZE, Const.CHUNK_SIZE):
+            for x in xrange(xmin, xmax+Const.CHUNK_SIZE, Const.CHUNK_SIZE):
+                chunks.add((x//Const.CHUNK_SIZE, y//Const.CHUNK_SIZE))
+
+        return chunks
+
+    @staticmethod
+    def isChunkOnScreen(coords):
+        '''Returns True if the chunk at the given coordinates is on the screen.'''
+        return coords in Util.getOnscreenChunks()
+
+    @staticmethod
+    def isChunkOnScreen2((cx, cy)):
+        '''Returns True if the chunk at the given coordinates is on the screen.'''
+        window = State().window
+        camX, camY = State().cameraPos
+        blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1 + Const.CHUNK_SIZE
+        blocksOutVert = window.height / 2 / Const.ZOOM / Const.PPB + 1 + Const.CHUNK_SIZE
+
+        xmin = int(camX - blocksOutHor)
+        xmax = int(camX + blocksOutHor)
+        ymin = int(camY - blocksOutVert)
+        ymax = int(camY + blocksOutVert)
+
+        cx *= Const.CHUNK_SIZE
+        cy *= Const.CHUNK_SIZE
+
+        return xmin < cx and cx < xmax and ymin < cy and cy < ymax
+
+    @staticmethod
     def physics_getBlockCoords(entities):
         '''Returns a list of block coordinates to be used for physics calculations based on those nearest to entities.'''
         blocks = []
