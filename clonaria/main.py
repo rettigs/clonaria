@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     batch = State().batch
 
-    if State().debug:
+    if State().debug >= 1:
         debugStats = [  '"FPS: {}".format(pyglet.clock.get_fps())',
                         '"player.body.position.x: {}".format(State().player.body.position.x)',
                         '"player.body.position.y: {}".format(State().player.body.position.y)',
@@ -97,12 +97,12 @@ if __name__ == '__main__':
         State().cameraPos = tuple(State().player.body.position)
         world.prepareDraw()
         player.prepareDraw()
-        if State().debug:
+        if State().debug >= 1:
             Util.prepareDrawDebugStats()
 
         batch.draw()
 
-        if State().debug:
+        if State().debug >= 2:
             Util.drawDebugPhysicsBlocks()
             Util.drawDebugPhysicsBlockHitboxes()
             Util.drawDebugTargetBlock()
