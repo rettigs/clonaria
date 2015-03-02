@@ -79,31 +79,46 @@ class World(object):
 
     def generate(self):
         '''Generates the world.'''
-        gen = WorldGen(self.width, self.height, seed=self.seed)
+        layer0 = WorldGen(self.width, self.height, seed=self.seed)
+        layer1 = WorldGen(self.width, self.height, seed=self.seed)
         if self.worldType == 'SINE':
-            gen.fill(State().blockModels['dirt'])
-            gen.sineMask()
+            layer1.fill(State().blockModels['dirt'])
+            layer1.sineMask()
         elif self.worldType == 'NORMAL':
-            gen.rect(State().blockModels['stone'], (0, 0), (self.width, int(self.height*.40)))
-            gen.rect(State().blockModels['dirt'], (0, int(self.height*.40)), (self.width, self.height))
-            gen.splotches(300, blockType=State().blockModels['sand'], minSize=5, maxSize=25)
-            gen.splotches(300, blockType=State().blockModels['gravel'], minSize=5, maxSize=12)
-            gen.splotches(2000, blockType=State().blockModels['stone'], minSize=0, maxSize=5)
-            gen.splotches(2000, blockType=State().blockModels['dirt'], minSize=0, maxSize=5)
-            gen.sineMask()
-            gen.genCaves(20)
-            gen.growGrass(height=int(self.height*.40))
+            layer0.fill(State().blockModels['dirt'])
+            layer1.rect(State().blockModels['stone'], (0, 0), (self.width, int(self.height*.40)))
+            layer1.rect(State().blockModels['dirt'], (0, int(self.height*.40)), (self.width, self.height))
+            layer1.splotches(300, blockType=State().blockModels['sand'], minSize=5, maxSize=25)
+            layer1.splotches(300, blockType=State().blockModels['gravel'], minSize=5, maxSize=12)
+            layer1.splotches(2000, blockType=State().blockModels['stone'], minSize=0, maxSize=5)
+            layer1.splotches(2000, blockType=State().blockModels['dirt'], minSize=0, maxSize=5)
+            layer0.sineMask()
+            layer1.sineMask()
+            layer1.genCaves(20)
+            layer1.growGrass(height=int(self.height*.40))
         else: # Default to FLAT
-            gen.rect(State().blockModels['air'], (0, self.height//2), (self.width, self.height))
-            gen.rect(State().blockModels['dirt'], (0, 0), (self.width, self.height//2))
+            layer1.rect(State().blockModels['air'], (0, self.height//2), (self.width, self.height))
+            layer1.rect(State().blockModels['dirt'], (0, 0), (self.width, self.height//2))
 
         # Copy the worldgen array into the world
+        l = self.layers[0]
+        for x in xrange(self.width):
+            for y in xrange(self.height):
+                l.setBlockAtUnsafe(layer0.a[x][y], (x, y))
         l = self.layers[1]
         for x in xrange(self.width):
             for y in xrange(self.height):
-                l.setBlockAtUnsafe(gen.a[x][y], (x, y))
+                l.setBlockAtUnsafe(layer1.a[x][y], (x, y))
 
     def prepareDraw(self):
+        old = State().visibleChunks
+        new = Util.getOnscreenChunks(self)
+        State().justVisibleChunks = new - old # All chunks that just became visible
+        State().justInvisibleChunks = old - new # All chunks that just became invisible
+        State().visibleChunks = new
+
         #for layer in self.layers:
             #layer.prepareDraw()
+        self.layers[0].prepareDraw() # TODO: Draw all layers; fix performance issues with this.
         self.layers[1].prepareDraw() # TODO: Draw all layers; fix performance issues with this.
+
