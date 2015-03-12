@@ -79,31 +79,46 @@ class World(object):
 
     def generate(self):
         '''Generates the world.'''
-        gen = WorldGen(self.width, self.height, seed=self.seed)
+        genlayers = [None for i in xrange(Const.NUM_LAYERS)]
+        genlayers[0] = WorldGen(self.width, self.height, seed=self.seed)
+        genlayers[1] = WorldGen(self.width, self.height, seed=self.seed)
         if self.worldType == 'SINE':
-            gen.fill(State().blockModels['dirt'])
-            gen.sineMask()
+            genlayers[1].fill(State().blockModels['dirt'])
+            genlayers[1].sineMask()
         elif self.worldType == 'NORMAL':
-            gen.rect(State().blockModels['stone'], (0, 0), (self.width, int(self.height*.40)))
-            gen.rect(State().blockModels['dirt'], (0, int(self.height*.40)), (self.width, self.height))
-            gen.splotches(300, blockType=State().blockModels['sand'], minSize=5, maxSize=25)
-            gen.splotches(300, blockType=State().blockModels['gravel'], minSize=5, maxSize=12)
-            gen.splotches(2000, blockType=State().blockModels['stone'], minSize=0, maxSize=5)
-            gen.splotches(2000, blockType=State().blockModels['dirt'], minSize=0, maxSize=5)
-            gen.sineMask()
-            gen.genCaves(20)
-            gen.growGrass(height=int(self.height*.40))
+            genlayers[0].fill(State().blockModels['background_dirt'])
+            genlayers[1].rect(State().blockModels['stone'], (0, 0), (self.width, int(self.height*.40)))
+            genlayers[1].rect(State().blockModels['dirt'], (0, int(self.height*.40)), (self.width, self.height))
+            genlayers[1].splotches(300, blockType=State().blockModels['sand'], minSize=5, maxSize=25)
+            genlayers[1].splotches(300, blockType=State().blockModels['gravel'], minSize=5, maxSize=12)
+            genlayers[1].splotches(2000, blockType=State().blockModels['stone'], minSize=0, maxSize=5)
+            genlayers[1].splotches(2000, blockType=State().blockModels['dirt'], minSize=0, maxSize=5)
+            genlayers[0].sineMask()
+            genlayers[1].sineMask()
+            genlayers[1].genCaves(20)
+            genlayers[1].growGrass(height=int(self.height*.40))
         else: # Default to FLAT
-            gen.rect(State().blockModels['air'], (0, self.height//2), (self.width, self.height))
-            gen.rect(State().blockModels['dirt'], (0, 0), (self.width, self.height//2))
+            genlayers[1].rect(State().blockModels['air'], (0, self.height//2), (self.width, self.height))
+            genlayers[1].rect(State().blockModels['dirt'], (0, 0), (self.width, self.height//2))
 
         # Copy the worldgen array into the world
-        l = self.layers[1]
-        for x in xrange(self.width):
-            for y in xrange(self.height):
-                l.setBlockAtUnsafe(gen.a[x][y], (x, y))
+        for l in xrange(len(genlayers)):
+            try:
+                for x in xrange(self.width):
+                    for y in xrange(self.height):
+                        self.layers[l].setBlockAtUnsafe(genlayers[l].a[x][y], (x, y))
+            except AttributeError:
+                pass
 
     def prepareDraw(self):
+        old = State().visibleChunks
+        new = Util.getOnscreenChunks(self)
+        State().justVisibleChunks = new - old # All chunks that just became visible
+        State().justInvisibleChunks = old - new # All chunks that just became invisible
+        State().visibleChunks = new
+
         #for layer in self.layers:
             #layer.prepareDraw()
+        self.layers[0].prepareDraw() # TODO: Draw all layers; fix performance issues with this.
         self.layers[1].prepareDraw() # TODO: Draw all layers; fix performance issues with this.
+

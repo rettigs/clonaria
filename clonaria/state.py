@@ -30,10 +30,14 @@ class State(Singleton):
         self.entityModels = None
         self.batch = pyglet.graphics.Batch()
         self.visibleChunks = set()
+        self.justVisibleChunks = set()
+        self.justInvisibleChunks = set()
         self.debugStats = []
         self.group = {}
-        for x in xrange(Const.NUM_LAYERS):
-            self.group['layer{}'.format(x-1)] = pyglet.graphics.OrderedGroup(x-1)
+        #for x in xrange(Const.NUM_LAYERS):
+        #    self.group['layer{}'.format(x-1)] = pyglet.graphics.OrderedGroup(x-1)
+        self.group['layer0'] = pyglet.graphics.OrderedGroup(0)
+        self.group['layer1'] = pyglet.graphics.OrderedGroup(1)
         self.group['entity'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS)
         self.group['player'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS+1)
         self.group['debug'] = pyglet.graphics.OrderedGroup(Const.NUM_LAYERS+2)

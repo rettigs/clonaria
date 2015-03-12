@@ -80,29 +80,21 @@ class WorldLayer(object):
 
     def prepareDraw(self):
         '''Prepares all blocks in the viewing window to be drawn to the screen.'''
-        oldVisible = State().visibleChunks
-        newVisible = Util.getOnscreenChunks(self)
-
-        justVisible = newVisible - oldVisible # All chunks that just became visible
-
-        for coords in justVisible:
+        
+        for coords in State().justVisibleChunks:
             try:
                 self.chunks[coords].onVisible()
             except IndexError:
                 pass
 
-        justInvisible = oldVisible - newVisible # All chunks that just became invisible
-
-        for coords in justInvisible: # All chunks that just became invisible
+        for coords in State().justInvisibleChunks: # All chunks that just became invisible
             try:
                 self.chunks[coords].onInvisible()
             except IndexError:
                 pass
 
-        for coords in newVisible:
+        for coords in State().visibleChunks:
             try:
                 self.chunks[coords].prepareDraw()
             except IndexError:
                 pass
-
-        State().visibleChunks = newVisible
