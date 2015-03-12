@@ -73,6 +73,9 @@ type: stone
 ---
 type: dirt
 ---
+type: background_dirt
+depth: 0
+---
 type: platform
 hitbox: '[(0, 0), (16, 0), (16, 4), (0, 4)]'
 ---
