@@ -191,8 +191,8 @@ class Util(object):
     def getNearbySolidBlocks(entity):
         bb = entity.shape.getAABB(entity.body.transform, 0)
         blocks = []
-        for x in xrange(int(bb.lowerBound[0] - 2), int(bb.upperBound[0] + 2)):
-            for y in xrange(int(bb.lowerBound[1] - 2), int(bb.upperBound[1] + 2)):
+        for x in xrange(int(bb.lowerBound[0] - 1), int(bb.upperBound[0] + 2)):
+            for y in xrange(int(bb.lowerBound[1] - 1), int(bb.upperBound[1] + 2)):
                 if entity.world.isSolidAt((x, y)):
                     blocks.append(Util.int_floor((x, y)))
         return blocks
