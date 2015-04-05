@@ -12,6 +12,7 @@ class Const(object):
     PIXELS_PER_BLOCK = PPB = 16
     BLOCK_SCALE = 2
     ZOOM = 1
+    ZOOM_DAMP = 0.5
     NUM_LAYERS = 5
     CHUNK_SIZE = 4
     WORLD_WIDTH = 256

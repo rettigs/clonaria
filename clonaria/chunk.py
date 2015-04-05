@@ -72,6 +72,7 @@ class Chunk(object):
                 newBlock = self.blocks[x][y]
                 if newBlock.get('type') != 'air':
                     newSprite = pyglet.sprite.Sprite(newBlock.get('texture'), batch=State().batch, group=State().group['layer{}'.format(self.layer)])
+                    newSprite.scale = Const.BLOCK_SCALE
                     self.blockSprites[(x, y)] = newSprite
 
     def onInvisible(self):
@@ -85,4 +86,5 @@ class Chunk(object):
             x = self.location[0]*cs + cx
             y = self.location[1]*cs + cy
             s.position = Util.blocksToPixels((x, y))
-            s.scale = Const.ZOOM * Const.BLOCK_SCALE
+            if State().perf < 1:
+                s.scale = Const.ZOOM * Const.BLOCK_SCALE

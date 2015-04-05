@@ -18,7 +18,7 @@ from world import *
 
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "dh", ["help", "worldtype=", "seed="])
+        opts, args = getopt.getopt(sys.argv[1:], "dhp", ["help", "worldtype=", "seed="])
     except getopt.GetoptError as err:
         print str(err)
         sys.exit(2)
@@ -28,6 +28,8 @@ if __name__ == '__main__':
     for o, a in opts:
         if o == "-d":
             State().debug += 1
+        elif o == "-p":
+            State().perf += 1
         elif o == "-h" or o == "--help":
             Util.showHelp()
             exit()
@@ -64,6 +66,9 @@ if __name__ == '__main__':
     batch = State().batch
 
     if State().debug >= 1:
+        debugStats = [  '"FPS: {}".format(pyglet.clock.get_fps())']
+        Util.addDebugStats(debugStats)
+    if State().debug >= 2:
         debugStats = [  '"FPS: {}".format(pyglet.clock.get_fps())',
                         '"player.body.position.x: {}".format(State().player.body.position.x)',
                         '"player.body.position.y: {}".format(State().player.body.position.y)',
@@ -102,7 +107,7 @@ if __name__ == '__main__':
 
         batch.draw()
 
-        if State().debug >= 2:
+        if State().debug >= 3:
             Util.drawDebugPhysicsBlocks()
             Util.drawDebugPhysicsBlockHitboxes()
             Util.drawDebugTargetBlock()
@@ -125,11 +130,14 @@ if __name__ == '__main__':
             playerJumping = True
             player.jump()
         if keys[key.PLUS] or keys[key.NUM_ADD]:
-            Const.ZOOM += 1 / Const.PPB
+            if State().perf < 1:
+                Const.ZOOM += 1 / Const.PPB * Const.ZOOM * Const.ZOOM_DAMP
         if keys[key.MINUS] or keys[key.NUM_SUBTRACT]:
-            Const.ZOOM -= 1 / Const.PPB
+            if State().perf < 1:
+                Const.ZOOM -= 1 / Const.PPB * Const.ZOOM * Const.ZOOM_DAMP
         if keys[key.EQUAL]:
-            Const.ZOOM = 1
+            if State().perf < 1:
+                Const.ZOOM = 1
         
         # Handle mouse input
         if mouse.LEFT in buttons:

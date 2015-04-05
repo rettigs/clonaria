@@ -119,6 +119,7 @@ class World(object):
 
         #for layer in self.layers:
             #layer.prepareDraw()
-        self.layers[0].prepareDraw() # TODO: Draw all layers; fix performance issues with this.
+        if State().perf < 1:
+            self.layers[0].prepareDraw() # TODO: Draw all layers; fix performance issues with this.
         self.layers[1].prepareDraw() # TODO: Draw all layers; fix performance issues with this.
 

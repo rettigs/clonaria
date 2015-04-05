@@ -13,6 +13,7 @@ class State(Singleton):
 
         # Basic program variables
         self.debug = 0
+        self.perf = 0
         self.window = None
         self.mouseLoc = None
 

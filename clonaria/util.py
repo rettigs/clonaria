@@ -21,7 +21,8 @@ class Util(object):
         '''Prints command line usage help.'''
         helpLines = [
             ("-h, --help", "Shows this help."),
-            ("-d", "Displays debug information in-game."),
+            ("-d", "Displays debug information in-game. Use multiple times for more info."),
+            ("-p", "Performance mode. Removes features, adds FPS. Use multiple times for more FPS."),
             ("--worldtype TYPE", "Choose a world type to generate. Options: {}".format(Const.WORLD_TYPES)),
             ("--seed STRING", "Specify a world seed to use. Uses system time by default.")
         ]
